@@ -1,4 +1,8 @@
 package parqueecologico;    
+/**
+ *
+ * @author Razor-PC V.3
+ */
 
 public class Conductor implements Runnable {
     
@@ -13,16 +17,13 @@ public class Conductor implements Runnable {
     }
 
     public void run(){
-        // Lógica para simular el trabajo del conductor
-        while (true) {
+        // logica para simular el trabajo del conductor
+        while (!Parque.estaCerrado()) { // El conductor sigue trabajando mientras el parque no esté cerrado
             try {
                 colectivo.iniciarViaje();
                 Thread.sleep(5000); // Simula un viaje de 5 segundos   *************REVISAR******
                 colectivo.terminarViaje();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }    
-            
+            } catch (InterruptedException e) {}      
         }
     }
 
