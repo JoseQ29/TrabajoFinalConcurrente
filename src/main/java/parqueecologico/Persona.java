@@ -35,7 +35,7 @@ public class Persona implements Runnable {
         this.tienePulsera = Parque.ingresarParque();
 
         while(!Parque.estaCerrado()){ //mientras el parque no este cerrado, la persona disfruta del shop o las actividades
-            if(random.nextInt(2) == 0){
+            if(random.nextBoolean()){//Si es true va al shoping, si es false va a hacer una actividad
                 Parque.irShop();
             }else{
                 Parque.irActividades();
