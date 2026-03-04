@@ -3,8 +3,8 @@
  */
 
 package parqueecologico;
-import java.util.concurrent.Semaphore;
 import java.util.Random;
+import java.util.concurrent.Semaphore;
 /**
  *
  * @author Razor-PC V.3
@@ -12,7 +12,7 @@ import java.util.Random;
 public class Parque {
 
     static final int MOLINETES = 5;
-    static Semaphore semCajeros = new Semaphore(2); // Semáforo para controlar el acceso a los cajeros
+    static Semaphore semCajeros = new Semaphore(2); // Semáforo para controlar el acceso a los cajeros del shoping
     static Semaphore semMolinetes = new Semaphore(MOLINETES); // Semáforo para controlar el acceso a los molinetes
     static boolean parqueCerrado = true; // Variable para indicar si el parque está cerrado o no
 
@@ -28,7 +28,7 @@ public class Parque {
         conductorThread.start();//iniciar el hilo del conductor
 
         for(int i = 0; i < 250; i++){//inicializar las personas que van al parque  
-            Thread personaThread = new Thread(new Persona(random.nextInt(2),false, colectivo), "Persona " + i);
+            Thread personaThread = new Thread(new Persona(random.nextBoolean(),false, colectivo), "Persona " + i);
             personaThread.start();
         }
     }
