@@ -41,7 +41,7 @@ public class Persona implements Runnable {
                 Parque.irActividades();
             }
         }
-        System.out.println("La Persona " + Thread.currentThread().getName() + " salió del parque");
+        System.out.println("La " + Thread.currentThread().getName() + " salió del parque");
     }
 
 }
