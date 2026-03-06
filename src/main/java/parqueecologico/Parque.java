@@ -14,7 +14,7 @@ import java.util.concurrent.Semaphore;
 public class Parque {
 
     static final int MOLINETES = 5;
-    static Semaphore semCajeros = new Semaphore(2); // Semáforo para controlar el acceso a los cajeros
+    static Semaphore semCajeros = new Semaphore(2); // Semáforo para controlar el acceso a los cajeros del shoping
     static Semaphore semMolinetes = new Semaphore(MOLINETES); // Semáforo para controlar el acceso a los molinetes
     static boolean parqueCerrado = true; // Variable para indicar si el parque está cerrado o no
 
@@ -36,8 +36,8 @@ public class Parque {
         Thread conductorThread = new Thread(new Conductor(1, "Conductor 1 y 2", colectivo), "Conductor 1");
         conductorThread.start();// iniciar el hilo del conductor
 
-        for (int i = 0; i < 250; i++) {// inicializar las personas que van al parque
-            Thread personaThread = new Thread(new Persona(random.nextInt(2), false, colectivo), "Persona " + i);
+        for(int i = 0; i < 250; i++){//inicializar las personas que van al parque  
+            Thread personaThread = new Thread(new Persona(random.nextBoolean(),false, colectivo), "Persona " + i);
             personaThread.start();
         }
     }
@@ -47,7 +47,7 @@ public class Parque {
         boolean tienePulsera = true; // simula que la persona recibe la pulsera antes de entrar al parque
         try {
             semMolinetes.acquire(); // Adquirir un permiso para pasar por el molinete
-            Thread.sleep(100);
+            Thread.sleep(10);
             System.out.println(
                     Color.verde() + Thread.currentThread().getName() + " paso por el molinete." + Color.reset());
             semMolinetes.release();

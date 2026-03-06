@@ -9,11 +9,11 @@ import java.util.Random;
 
 public class Persona implements Runnable {
 
-    private int formaAcceso; // 0 para particular, 1 para Tour
+    private boolean formaAcceso; // false para particular, true para Tour
     private boolean tienePulsera; // true si tiene pulsera, false si no
     private final Colectivo colectivo; // Referencia al colectivo al que pertenece la persona
 
-    public Persona(int formaAcceso, boolean tienePulsera, Colectivo colectivo) {
+    public Persona(boolean formaAcceso, boolean tienePulsera, Colectivo colectivo) {
         // Constructor para inicializar los atributos de la persona
         this.formaAcceso = formaAcceso;
         this.tienePulsera = tienePulsera;
@@ -24,7 +24,7 @@ public class Persona implements Runnable {
         // logica para simular el acceso al parque ecológico
         boolean viajo = false; // Variable para indicar si la persona realizo el viaje en colectivo o no.
         Random random = new Random();
-        if (formaAcceso == 0) {
+        if (formaAcceso) {
             System.out.println(Color.amarillo() + Thread.currentThread().getName()
                     + " va a acceder de forma particular." + Color.reset());
             viajo = true;
