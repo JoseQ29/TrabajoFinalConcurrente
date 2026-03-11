@@ -86,7 +86,7 @@ public class Parque {
     public static void cerrarParque() {
         // logica para simular el cierre del parque
         parqueCerrado = true;
-        System.out.println("El parque ha cerrado.");
+        System.out.println("El parque ha cerrado. Nos vemos mañana...");
     }
 
     public static void abrirParque() {
