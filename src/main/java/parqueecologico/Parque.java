@@ -19,7 +19,7 @@ public class Parque {
     public static final boolean MSJ_AccesoMolinetes = false;
     public static final boolean MSJ_PersonaShop = false;
     public static final boolean MSJ_PersonaActividades = false;
-    public static final boolean MSJ_AccionColectivos = false;
+    public static final boolean MSJ_AccionColectivos = true;
     public static final boolean MSJ_Salidas = false;
     //Debug
     static Semaphore semCajeros = new Semaphore(2); // Semáforo para controlar el acceso a los cajeros del shoping

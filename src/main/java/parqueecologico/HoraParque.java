@@ -16,7 +16,7 @@ public class HoraParque implements Runnable {
         // El parque abre a las 9:00 y cierra a las 17:00
         // Se simula una hora cada 10 segundos y el parque esta abierto 7 horas.
         Parque.abrirParque();
-        while (hora <= horaCierre) {
+        do { 
             try {
                 Thread.sleep(1000); // Simula el tiempo que el pasa entre hora y hora
                 sumarHora();
@@ -24,9 +24,8 @@ public class HoraParque implements Runnable {
                 if (hora == horaCierre) {
                     Parque.cerrarParque();
                 }
-            } catch (InterruptedException e) {
-            }
-        }
+            } catch (InterruptedException e) {}
+        } while (hora < horaCierre);
 
     }
 
