@@ -26,10 +26,12 @@ public class Persona implements Runnable {
 
     public void consumirMerienda(){
         merienda = false;
+        Debuger.log(Parque.MSJ_PersonaActividadesRestaurant, Color.violeta() + Thread.currentThread().getName() + " consumió su merienda" + Color.reset());
     }
     
     public void consumirAlmuerzo(){
         almuerzo = false;
+        Debuger.log(Parque.MSJ_PersonaActividadesRestaurant, Color.violeta() + Thread.currentThread().getName() + " consumió su almuerzo" + Color.reset());
     }
 
     public boolean getMerienda(){
@@ -47,14 +49,10 @@ public class Persona implements Runnable {
         if (formaAcceso) {
             Debuger.log(Parque.MSJ_AccionColectivos, Color.amarillo() + Thread.currentThread().getName()
                     + " va a acceder de forma particular." + Color.reset());
-            //System.out.println(Color.amarillo() + Thread.currentThread().getName()
-            //        + " va a acceder de forma particular." + Color.reset());
             viajo = true;
         } else {
             Debuger.log(Parque.MSJ_AccionColectivos, Color.amarillo() + Thread.currentThread().getName()
                     + " va a acceder a través de un tour." + Color.reset());
-            //System.out.println(Color.amarillo() + Thread.currentThread().getName()
-            //        + " va a acceder a través de un tour." + Color.reset());
             try {
                 colectivo.subir();
                 viajo = colectivo.bajar();
@@ -66,16 +64,23 @@ public class Persona implements Runnable {
             this.tienePulsera = Parque.ingresarParque();
             while (!Parque.estaCerrado()) { // mientras el parque no este cerrado, la persona disfruta del shop o las
                                             // actividades
-                if (random.nextInt(2) == 0) {
+                if (random.nextBoolean()) { // Si es true se va al shop, si es false se va a alguna de las actividades
                     Parque.irShop();
                 } else {
-                    Parque.irActividades();
+                    if(!this.almuerzo && !this.merienda){// En caso de que no tenga disponible ni el almuerzo, ni la merienda, elige cualquier actividad menos el restaurant
+                        int opcion = random.nextInt(4);
+                        if (opcion >= 3) {
+                            opcion++;
+                        }
+                        Parque.irActividades(opcion, this);
+                    }else{
+                        Parque.irActividades(random.nextInt(5), this);
+                    }                    
                 }
             }
 
         }
         Debuger.log(Parque.MSJ_Salidas, Color.rojo() + Thread.currentThread().getName() + " se va del parque." + Color.reset());
-        //System.out.println(Color.rojo() + Thread.currentThread().getName() + " se va del parque." + Color.reset());
     }
 
 }

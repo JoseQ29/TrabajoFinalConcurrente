@@ -2,7 +2,6 @@ package parqueecologico;
 
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Random;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -21,9 +20,8 @@ public class Restaurant {
         this.colaEspera = new LinkedList<>(); 
     }
 
-    public void entrarRestaurant(Persona visitante){
+    public void entrarRestaurant(){
         lock.lock();
-        Random queCome = new Random();
         try {
             if (cantPersonasComiendo == capacidadMaxima){   // Si el restaurant esta lleno, se bloquea el visitante
                 Condition miTurno = lock.newCondition();    // Crea la condición para bloquear el visitante
@@ -31,11 +29,6 @@ public class Restaurant {
                 miTurno.await();
             }
             cantPersonasComiendo++;
-            if(queCome.nextBoolean()){                      // Si es true come su merienda, sino come su almuerzo
-                visitante.consumirMerienda();
-            }else{
-                visitante.consumirAlmuerzo();
-            }
         } 
         catch (InterruptedException e) {}
         finally {
@@ -55,5 +48,9 @@ public class Restaurant {
         finally{
             lock.unlock();
         }
+    }
+
+    public String getName(){
+        return this.nombre;
     }
 }

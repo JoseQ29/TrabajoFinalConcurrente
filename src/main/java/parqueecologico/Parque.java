@@ -19,13 +19,16 @@ public class Parque {
     public static final boolean MSJ_AccesoMolinetes = false;
     public static final boolean MSJ_PersonaShop = false;
     public static final boolean MSJ_PersonaActividades = false;
+    public static final boolean MSJ_PersonaActividadesRestaurant = true;
     public static final boolean MSJ_AccionColectivos = true;
     public static final boolean MSJ_Salidas = true;
     //Debug
     static Semaphore semCajeros = new Semaphore(2); // Semáforo para controlar el acceso a los cajeros del shoping
     static Semaphore semMolinetes = new Semaphore(MOLINETES); // Semáforo para controlar el acceso a los molinetes
     static boolean parqueCerrado = true; // Variable para indicar si el parque está cerrado o no
-
+    static Restaurant restaurant1 = new Restaurant(10, "Burgerking");
+    static Restaurant restaurant2 = new Restaurant(20, "Mostaza");
+    static Restaurant restaurant3 = new Restaurant(15, "Mc Donalds"); 
     public static void main(String[] args) {
 
         System.out.println("\n" + Color.verde() + "Color verde = acceso a los molinetes" + Color.reset());
@@ -79,13 +82,41 @@ public class Parque {
         }
     }
 
-    public static void irActividades() {
+    public static void irActividades(int opcion, Persona visitante) {
         // logica para simular que la persona va a las actividades del parque
-        Debuger.log(MSJ_PersonaActividades, Color.violeta() + Thread.currentThread().getName() + " está en las actividades." + Color.reset());
-        //System.out.println(Color.violeta() + Thread.currentThread().getName() + " está en las actividades." + Color.reset());
-        try {
-            Thread.sleep(1000); // Simula el tiempo que tarda en disfrutar de las actividades
-        } catch (InterruptedException e) {
+        switch (opcion) {
+            case 0:                                 // Nado con delfines
+                Debuger.log(MSJ_PersonaActividades, Color.violeta() + Thread.currentThread().getName() + " está en las actividades." + Color.reset());
+                try {
+                    Thread.sleep(1000); // Simula el tiempo que tarda en disfrutar de las actividades
+                } catch (InterruptedException e) {}
+                break;
+            case 1:                                 // Disfruta de Snorkel
+                Debuger.log(MSJ_PersonaActividades, Color.violeta() + Thread.currentThread().getName() + " está en las actividades." + Color.reset());
+                try {
+                    Thread.sleep(1000); // Simula el tiempo que tarda en disfrutar de las actividades
+                } catch (InterruptedException e) {}
+                break;
+            case 2:                                 // Restaurante
+                actividadRestaurant(visitante);
+            case 3:                                 // Mundo de Aventuras
+                Debuger.log(MSJ_PersonaActividades, Color.violeta() + Thread.currentThread().getName() + " está en las actividades." + Color.reset());
+                try {
+                    Thread.sleep(1000); // Simula el tiempo que tarda en disfrutar de las actividades
+                } catch (InterruptedException e) {}
+                break;
+            case 4:                                 // Faro/Mirador con descenso en tobogán
+                Debuger.log(MSJ_PersonaActividades, Color.violeta() + Thread.currentThread().getName() + " está en las actividades." + Color.reset());
+                try {
+                    Thread.sleep(1000); // Simula el tiempo que tarda en disfrutar de las actividades
+                } catch (InterruptedException e) {}
+                break;
+            case 5:                                 // Carreras de Gomones
+                Debuger.log(MSJ_PersonaActividades, Color.violeta() + Thread.currentThread().getName() + " está en las actividades." + Color.reset());
+                try {
+                    Thread.sleep(1000); // Simula el tiempo que tarda en disfrutar de las actividades
+                } catch (InterruptedException e) {}
+                break;
         }
     }
 
@@ -104,5 +135,81 @@ public class Parque {
         // logica para simular la apertura del parque
         parqueCerrado = false;
         System.out.println("El parque ha abierto.");
+    }
+
+    //Actividades
+    private static void actividadRestaurant(Persona visitante){
+        Random random = new Random();
+        switch (random.nextInt(2)) {                    // El visitante elige en cuál restaurant entrar
+            case 0:                     
+                Debuger.log(MSJ_PersonaActividadesRestaurant, Color.violeta() + Thread.currentThread().getName() + " ingresó a " + restaurant1.getName() + Color.reset());
+                restaurant1.entrarRestaurant();
+                if (visitante.getAlmuerzo() && visitante.getMerienda()) {// Si tiene ambas opciones elige qué hacer
+                    switch (random.nextInt(2)) {        // Depende de la opcion, consume la merienda, el almuerzo o ambos
+                        case 0:
+                            visitante.consumirAlmuerzo();
+                            break;
+                        case 1:
+                            visitante.consumirMerienda();
+                            break;
+                        case 2:
+                            visitante.consumirAlmuerzo();
+                            visitante.consumirMerienda();                            
+                            break;
+                    }
+                }else if(visitante.getAlmuerzo()){  // Si solo tiene el almuerzo lo consume
+                    visitante.consumirAlmuerzo();
+                }else{                              // Si solo tiene la merienda la consume
+                    visitante.consumirMerienda();
+                }
+                restaurant1.salirRestaurant();
+                break;
+            case 1:
+                Debuger.log(MSJ_PersonaActividadesRestaurant, Color.violeta() + Thread.currentThread().getName() + " ingresó a " + restaurant2.getName() + Color.reset());
+                restaurant2.entrarRestaurant();
+                if (visitante.getAlmuerzo() && visitante.getMerienda()) {// Si tiene ambas opciones elige qué hacer
+                    switch (random.nextInt(2)) {        // Depende de la opcion, consume la merienda, el almuerzo o ambos
+                        case 0:
+                            visitante.consumirAlmuerzo();
+                            break;
+                        case 1:
+                            visitante.consumirMerienda();
+                            break;
+                        case 2:
+                            visitante.consumirAlmuerzo();
+                            visitante.consumirMerienda();                            
+                            break;
+                    }
+                }else if(visitante.getAlmuerzo()){  // Si solo tiene el almuerzo lo consume
+                    visitante.consumirAlmuerzo();
+                }else{                              // Si solo tiene la merienda la consume
+                    visitante.consumirMerienda();
+                }
+                restaurant2.salirRestaurant();
+                break;
+            case 2:
+                Debuger.log(MSJ_PersonaActividadesRestaurant, Color.violeta() + Thread.currentThread().getName() + " ingresó a " + restaurant3.getName() + Color.reset());
+                restaurant3.entrarRestaurant();
+                if (visitante.getAlmuerzo() && visitante.getMerienda()) {// Si tiene ambas opciones elige qué hacer
+                    switch (random.nextInt(2)) {        // Depende de la opcion, consume la merienda, el almuerzo o ambos
+                        case 0:
+                            visitante.consumirAlmuerzo();
+                            break;
+                        case 1:
+                            visitante.consumirMerienda();
+                            break;
+                        case 2:
+                            visitante.consumirAlmuerzo();
+                            visitante.consumirMerienda();                            
+                            break;
+                    }
+                }else if(visitante.getAlmuerzo()){  // Si solo tiene el almuerzo lo consume
+                    visitante.consumirAlmuerzo();
+                }else{                              // Si solo tiene la merienda la consume
+                    visitante.consumirMerienda();
+                }
+                restaurant3.salirRestaurant();
+                break;
+        }
     }
 }
