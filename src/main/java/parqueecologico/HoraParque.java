@@ -23,6 +23,9 @@ public class HoraParque implements Runnable {
                 System.out.println("Son las " + hora + ":00 pm");
                 if (hora == horaCierre) {
                     Parque.cerrarParque();
+                    synchronized (colectivo) {
+                        colectivo.notifyAll();      // Al cerrar el parque se les notifica a los colectivos paraque terminen su funcionamiento
+                    }                    
                 }
             } catch (InterruptedException e) {}
         } while (hora < horaCierre);
