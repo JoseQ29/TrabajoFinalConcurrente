@@ -12,12 +12,32 @@ public class Persona implements Runnable {
     private boolean formaAcceso; // false para particular, true para Tour
     private boolean tienePulsera; // true si tiene pulsera, false si no
     private final Colectivo colectivo; // Referencia al colectivo al que pertenece la persona
+    private boolean merienda; // Inidica si tiene habilitada la merienda para consumir
+    private boolean almuerzo; // Inidica si tiene habilitado el almuerzo para consumir
 
     public Persona(boolean formaAcceso, boolean tienePulsera, Colectivo colectivo) {
         // Constructor para inicializar los atributos de la persona
         this.formaAcceso = formaAcceso;
         this.tienePulsera = tienePulsera;
         this.colectivo = colectivo;
+        this.merienda = true;
+        this.almuerzo = true;
+    }
+
+    public void consumirMerienda(){
+        merienda = false;
+    }
+    
+    public void consumirAlmuerzo(){
+        almuerzo = false;
+    }
+
+    public boolean getMerienda(){
+        return merienda;
+    }
+
+    public boolean getAlmuerzo(){
+        return almuerzo;
     }
 
     public void run() {
