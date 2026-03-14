@@ -14,6 +14,14 @@ import java.util.concurrent.Semaphore;
 public class Parque {
 
     static final int MOLINETES = 5;
+    //Debug
+    public static final boolean MSJ_AccesoParque=false;
+    public static final boolean MSJ_AccesoMolinetes = false;
+    public static final boolean MSJ_PersonaShop = false;
+    public static final boolean MSJ_PersonaActividades = false;
+    public static final boolean MSJ_AccionColectivos = false;
+    public static final boolean MSJ_Salidas = false;
+    //Debug
     static Semaphore semCajeros = new Semaphore(2); // Semáforo para controlar el acceso a los cajeros del shoping
     static Semaphore semMolinetes = new Semaphore(MOLINETES); // Semáforo para controlar el acceso a los molinetes
     static boolean parqueCerrado = true; // Variable para indicar si el parque está cerrado o no
@@ -25,6 +33,8 @@ public class Parque {
         System.out.println(Color.cyan() + "Color cyan = persona en el shop" + Color.reset());
         System.out.println(Color.violeta() + "Color violeta = persona en las actividades" + Color.reset());
         System.out.println(Color.azul() + "Color azul = acciones de los colectivos" + Color.reset());
+
+        
 
         Random random = new Random();
 
@@ -48,8 +58,8 @@ public class Parque {
         try {
             semMolinetes.acquire(); // Adquirir un permiso para pasar por el molinete
             Thread.sleep(10);
-            System.out.println(
-                    Color.verde() + Thread.currentThread().getName() + " paso por el molinete." + Color.reset());
+            Debuger.log(MSJ_AccesoMolinetes, Color.verde() + Thread.currentThread().getName() + " paso por el molinete." + Color.reset());
+            //System.out.println(Color.verde() + Thread.currentThread().getName() + " paso por el molinete." + Color.reset());
             semMolinetes.release();
         } catch (InterruptedException e) {
         }
@@ -58,7 +68,8 @@ public class Parque {
 
     public static void irShop() {
         // logica para simular que la persona va al shop del parque
-        System.out.println(Color.cyan() + Thread.currentThread().getName() + " está en el shop." + Color.reset());
+        Debuger.log(MSJ_PersonaShop, Color.cyan() + Thread.currentThread().getName() + " está en el shop." + Color.reset());
+        //System.out.println(Color.cyan() + Thread.currentThread().getName() + " está en el shop." + Color.reset());
         try {
             Thread.sleep(500); // Simula el tiempo que tarda en recorrer el shop
             semCajeros.acquire(); // La persona pasa a pagar
@@ -70,8 +81,8 @@ public class Parque {
 
     public static void irActividades() {
         // logica para simular que la persona va a las actividades del parque
-        System.out.println(
-                Color.violeta() + Thread.currentThread().getName() + " está en las actividades." + Color.reset());
+        Debuger.log(MSJ_PersonaActividades, Color.violeta() + Thread.currentThread().getName() + " está en las actividades." + Color.reset());
+        //System.out.println(Color.violeta() + Thread.currentThread().getName() + " está en las actividades." + Color.reset());
         try {
             Thread.sleep(1000); // Simula el tiempo que tarda en disfrutar de las actividades
         } catch (InterruptedException e) {

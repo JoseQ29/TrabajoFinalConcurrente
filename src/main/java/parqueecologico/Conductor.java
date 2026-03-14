@@ -27,7 +27,8 @@ public class Conductor implements Runnable {
             } catch (InterruptedException e) {
             }
         }
-        System.out.println(Color.rojo() + nombre + " se va a su casa porque el parque está cerrado." + Color.reset());
+        Debuger.log(Parque.MSJ_Salidas, Color.rojo() + nombre + " se va a su casa porque el parque está cerrado." + Color.reset());
+        //System.out.println(Color.rojo() + nombre + " se va a su casa porque el parque está cerrado." + Color.reset());
     }
 
 }

@@ -45,12 +45,16 @@ public class Persona implements Runnable {
         boolean viajo = false; // Variable para indicar si la persona realizo el viaje en colectivo o no.
         Random random = new Random();
         if (formaAcceso) {
-            System.out.println(Color.amarillo() + Thread.currentThread().getName()
+            Debuger.log(Parque.MSJ_AccionColectivos, Color.amarillo() + Thread.currentThread().getName()
                     + " va a acceder de forma particular." + Color.reset());
+            //System.out.println(Color.amarillo() + Thread.currentThread().getName()
+            //        + " va a acceder de forma particular." + Color.reset());
             viajo = true;
         } else {
-            System.out.println(Color.amarillo() + Thread.currentThread().getName()
+            Debuger.log(Parque.MSJ_AccionColectivos, Color.amarillo() + Thread.currentThread().getName()
                     + " va a acceder a través de un tour." + Color.reset());
+            //System.out.println(Color.amarillo() + Thread.currentThread().getName()
+            //        + " va a acceder a través de un tour." + Color.reset());
             try {
                 colectivo.subir();
                 viajo = colectivo.bajar();
@@ -70,7 +74,8 @@ public class Persona implements Runnable {
             }
 
         }
-        System.out.println(Color.rojo() + Thread.currentThread().getName() + " se va del parque." + Color.reset());
+        Debuger.log(Parque.MSJ_Salidas, Color.rojo() + Thread.currentThread().getName() + " se va del parque." + Color.reset());
+        //System.out.println(Color.rojo() + Thread.currentThread().getName() + " se va del parque." + Color.reset());
     }
 
 }
