@@ -26,11 +26,17 @@ public class Persona implements Runnable {
 
     public void consumirMerienda(){
         merienda = false;
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {}
         Debuger.log(Parque.MSJ_PersonaActividadesRestaurant, Color.violeta() + Thread.currentThread().getName() + " consumió su merienda" + Color.reset());
     }
     
     public void consumirAlmuerzo(){
         almuerzo = false;
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {}
         Debuger.log(Parque.MSJ_PersonaActividadesRestaurant, Color.violeta() + Thread.currentThread().getName() + " consumió su almuerzo" + Color.reset());
     }
 
