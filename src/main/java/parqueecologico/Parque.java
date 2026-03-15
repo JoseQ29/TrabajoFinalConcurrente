@@ -19,16 +19,21 @@ public class Parque {
     public static final boolean MSJ_AccesoMolinetes = false;
     public static final boolean MSJ_PersonaShop = false;
     public static final boolean MSJ_PersonaActividades = false;
-    public static final boolean MSJ_PersonaActividadesRestaurant = true;
-    public static final boolean MSJ_AccionColectivos = true;
+    public static final boolean MSJ_PersonaActividadesRestaurant = false;
+    public static final boolean MSJ_PersonaActividadesSnorkel = true;
+    public static final boolean MSJ_AccionColectivos = false;
     public static final boolean MSJ_Salidas = true;
     //Debug
     static Semaphore semCajeros = new Semaphore(2); // Semáforo para controlar el acceso a los cajeros del shoping
     static Semaphore semMolinetes = new Semaphore(MOLINETES); // Semáforo para controlar el acceso a los molinetes
     static boolean parqueCerrado = true; // Variable para indicar si el parque está cerrado o no
+
+    //Restaurant
     static Restaurant restaurant1 = new Restaurant(10, "Burgerking");
     static Restaurant restaurant2 = new Restaurant(20, "Mostaza");
     static Restaurant restaurant3 = new Restaurant(15, "Mc Donalds"); 
+    //Snorkel
+    static Snorkel actSnorkel = new Snorkel(5);
     public static void main(String[] args) {
 
         System.out.println("\n" + Color.verde() + "Color verde = acceso a los molinetes" + Color.reset());
@@ -37,9 +42,12 @@ public class Parque {
         System.out.println(Color.violeta() + "Color violeta = persona en las actividades" + Color.reset());
         System.out.println(Color.azul() + "Color azul = acciones de los colectivos" + Color.reset());
 
-        
-
         Random random = new Random();
+
+        Thread adminSnorkel1 = new Thread(new AdministradorSnorkel(actSnorkel, "administradorSnorkel 1"), "administradorSnorkel 1");    // Se crean y se inician los administradores de la actividad de Snorkel
+        Thread adminSnorkel2 = new Thread(new AdministradorSnorkel(actSnorkel, "administradorSnorkel 2"), "administradorSnorkel 2");
+        adminSnorkel1.start();
+        adminSnorkel2.start();
 
         Colectivo colectivo = new Colectivo();// crear el colectivo(monitor)
 
@@ -92,13 +100,12 @@ public class Parque {
                 } catch (InterruptedException e) {}
                 break;
             case 1:                                 // Disfruta de Snorkel
-                Debuger.log(MSJ_PersonaActividades, Color.violeta() + Thread.currentThread().getName() + " está en las actividades." + Color.reset());
-                try {
-                    Thread.sleep(1000); // Simula el tiempo que tarda en disfrutar de las actividades
-                } catch (InterruptedException e) {}
+                actividadSnorkel();
+                Debuger.log(MSJ_PersonaActividades, Color.violeta() + Thread.currentThread().getName() + " está en las actividades." + Color.reset());                
                 break;
             case 2:                                 // Restaurante
                 actividadRestaurant(visitante);
+                break;
             case 3:                                 // Mundo de Aventuras
                 Debuger.log(MSJ_PersonaActividades, Color.violeta() + Thread.currentThread().getName() + " está en las actividades." + Color.reset());
                 try {
@@ -211,5 +218,14 @@ public class Parque {
                 restaurant3.salirRestaurant();
                 break;
         }
+    }
+
+    private static void actividadSnorkel(){
+        actSnorkel.pedirEquipo();
+        Debuger.log(MSJ_PersonaActividadesSnorkel, Color.violeta() + Thread.currentThread().getName() + " está haciendo snorkel" + Color.reset());
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {}
+        actSnorkel.regresarEquipo();
     }
 }
