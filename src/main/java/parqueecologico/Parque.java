@@ -14,8 +14,8 @@ import java.util.concurrent.Semaphore;
 public class Parque {
 
     static final int MOLINETES = 5;
-    //Debug
-    public static final boolean MSJ_AccesoParque=false;
+    // Debug
+    public static final boolean MSJ_AccesoParque = false;
     public static final boolean MSJ_AccesoMolinetes = false;
     public static final boolean MSJ_PersonaShop = false;
     public static final boolean MSJ_PersonaActividades = false;
@@ -23,17 +23,18 @@ public class Parque {
     public static final boolean MSJ_PersonaActividadesSnorkel = true;
     public static final boolean MSJ_AccionColectivos = false;
     public static final boolean MSJ_Salidas = true;
-    //Debug
+    // Debug
     static Semaphore semCajeros = new Semaphore(2); // Semáforo para controlar el acceso a los cajeros del shoping
     static Semaphore semMolinetes = new Semaphore(MOLINETES); // Semáforo para controlar el acceso a los molinetes
     static boolean parqueCerrado = true; // Variable para indicar si el parque está cerrado o no
 
-    //Restaurant
+    // Restaurant
     static Restaurant restaurant1 = new Restaurant(10, "Burgerking");
     static Restaurant restaurant2 = new Restaurant(20, "Mostaza");
-    static Restaurant restaurant3 = new Restaurant(15, "Mc Donalds"); 
-    //Snorkel
+    static Restaurant restaurant3 = new Restaurant(15, "Mc Donalds");
+    // Snorkel
     static Snorkel actSnorkel = new Snorkel(5);
+
     public static void main(String[] args) {
 
         System.out.println("\n" + Color.verde() + "Color verde = acceso a los molinetes" + Color.reset());
@@ -44,8 +45,10 @@ public class Parque {
 
         Random random = new Random();
 
-        Thread adminSnorkel1 = new Thread(new AdministradorSnorkel(actSnorkel, "administradorSnorkel 1"), "administradorSnorkel 1");    // Se crean y se inician los administradores de la actividad de Snorkel
-        Thread adminSnorkel2 = new Thread(new AdministradorSnorkel(actSnorkel, "administradorSnorkel 2"), "administradorSnorkel 2");
+        Thread adminSnorkel1 = new Thread(new AdministradorSnorkel(actSnorkel, "administradorSnorkel 1"),
+                "administradorSnorkel 1"); // Se crean y se inician los administradores de la actividad de Snorkel
+        Thread adminSnorkel2 = new Thread(new AdministradorSnorkel(actSnorkel, "administradorSnorkel 2"),
+                "administradorSnorkel 2");
         adminSnorkel1.start();
         adminSnorkel2.start();
 
@@ -57,8 +60,8 @@ public class Parque {
         Thread conductorThread = new Thread(new Conductor(1, "Conductor 1 y 2", colectivo), "Conductor 1");
         conductorThread.start();// iniciar el hilo del conductor
 
-        for(int i = 0; i < 250; i++){//inicializar las personas que van al parque  
-            Thread personaThread = new Thread(new Persona(random.nextBoolean(),false, colectivo), "Persona " + i);
+        for (int i = 0; i < 250; i++) {// inicializar las personas que van al parque
+            Thread personaThread = new Thread(new Persona(random.nextBoolean(), false, colectivo), "Persona " + i);
             personaThread.start();
         }
     }
@@ -69,8 +72,10 @@ public class Parque {
         try {
             semMolinetes.acquire(); // Adquirir un permiso para pasar por el molinete
             Thread.sleep(10);
-            Debuger.log(MSJ_AccesoMolinetes, Color.verde() + Thread.currentThread().getName() + " paso por el molinete." + Color.reset());
-            //System.out.println(Color.verde() + Thread.currentThread().getName() + " paso por el molinete." + Color.reset());
+            Debuger.log(MSJ_AccesoMolinetes,
+                    Color.verde() + Thread.currentThread().getName() + " paso por el molinete." + Color.reset());
+            // System.out.println(Color.verde() + Thread.currentThread().getName() + " paso
+            // por el molinete." + Color.reset());
             semMolinetes.release();
         } catch (InterruptedException e) {
         }
@@ -79,8 +84,10 @@ public class Parque {
 
     public static void irShop() {
         // logica para simular que la persona va al shop del parque
-        Debuger.log(MSJ_PersonaShop, Color.cyan() + Thread.currentThread().getName() + " está en el shop." + Color.reset());
-        //System.out.println(Color.cyan() + Thread.currentThread().getName() + " está en el shop." + Color.reset());
+        Debuger.log(MSJ_PersonaShop,
+                Color.cyan() + Thread.currentThread().getName() + " está en el shop." + Color.reset());
+        // System.out.println(Color.cyan() + Thread.currentThread().getName() + " está
+        // en el shop." + Color.reset());
         try {
             Thread.sleep(500); // Simula el tiempo que tarda en recorrer el shop
             semCajeros.acquire(); // La persona pasa a pagar
@@ -93,36 +100,45 @@ public class Parque {
     public static void irActividades(int opcion, Persona visitante) {
         // logica para simular que la persona va a las actividades del parque
         switch (opcion) {
-            case 0:                                 // Nado con delfines
-                Debuger.log(MSJ_PersonaActividades, Color.violeta() + Thread.currentThread().getName() + " está en las actividades." + Color.reset());
+            case 0: // Nado con delfines
+                Debuger.log(MSJ_PersonaActividades, Color.violeta() + Thread.currentThread().getName()
+                        + " está en las actividades." + Color.reset());
                 try {
                     Thread.sleep(1000); // Simula el tiempo que tarda en disfrutar de las actividades
-                } catch (InterruptedException e) {}
+                } catch (InterruptedException e) {
+                }
                 break;
-            case 1:                                 // Disfruta de Snorkel
+            case 1: // Disfruta de Snorkel
                 actividadSnorkel();
-                Debuger.log(MSJ_PersonaActividades, Color.violeta() + Thread.currentThread().getName() + " está en las actividades." + Color.reset());                
+                Debuger.log(MSJ_PersonaActividades, Color.violeta() + Thread.currentThread().getName()
+                        + " está en las actividades." + Color.reset());
                 break;
-            case 2:                                 // Restaurante
+            case 2: // Restaurante
                 actividadRestaurant(visitante);
                 break;
-            case 3:                                 // Mundo de Aventuras
-                Debuger.log(MSJ_PersonaActividades, Color.violeta() + Thread.currentThread().getName() + " está en las actividades." + Color.reset());
+            case 3: // Mundo de Aventuras
+                Debuger.log(MSJ_PersonaActividades, Color.violeta() + Thread.currentThread().getName()
+                        + " está en las actividades." + Color.reset());
                 try {
                     Thread.sleep(1000); // Simula el tiempo que tarda en disfrutar de las actividades
-                } catch (InterruptedException e) {}
+                } catch (InterruptedException e) {
+                }
                 break;
-            case 4:                                 // Faro/Mirador con descenso en tobogán
-                Debuger.log(MSJ_PersonaActividades, Color.violeta() + Thread.currentThread().getName() + " está en las actividades." + Color.reset());
+            case 4: // Faro/Mirador con descenso en tobogán
+                Debuger.log(MSJ_PersonaActividades, Color.violeta() + Thread.currentThread().getName()
+                        + " está en las actividades." + Color.reset());
                 try {
                     Thread.sleep(1000); // Simula el tiempo que tarda en disfrutar de las actividades
-                } catch (InterruptedException e) {}
+                } catch (InterruptedException e) {
+                }
                 break;
-            case 5:                                 // Carreras de Gomones
-                Debuger.log(MSJ_PersonaActividades, Color.violeta() + Thread.currentThread().getName() + " está en las actividades." + Color.reset());
+            case 5: // Carreras de Gomones
+                Debuger.log(MSJ_PersonaActividades, Color.violeta() + Thread.currentThread().getName()
+                        + " está en las actividades." + Color.reset());
                 try {
                     Thread.sleep(1000); // Simula el tiempo que tarda en disfrutar de las actividades
-                } catch (InterruptedException e) {}
+                } catch (InterruptedException e) {
+                }
                 break;
         }
     }
@@ -144,88 +160,68 @@ public class Parque {
         System.out.println("El parque ha abierto.");
     }
 
-    //Actividades
-    private static void actividadRestaurant(Persona visitante){
+    // Actividades
+    private static void actividadRestaurant(Persona visitante) {
         Random random = new Random();
-        switch (random.nextInt(2)) {                    // El visitante elige en cuál restaurant entrar
-            case 0:                     
-                Debuger.log(MSJ_PersonaActividadesRestaurant, Color.violeta() + Thread.currentThread().getName() + " ingresó a " + restaurant1.getName() + Color.reset());
+        switch (random.nextInt(2)) { // El visitante elige en cuál restaurant entrar
+            case 0:
+                Debuger.log(MSJ_PersonaActividadesRestaurant, Color.violeta() + Thread.currentThread().getName()
+                        + " ingresó a " + restaurant1.getName() + Color.reset());
                 restaurant1.entrarRestaurant();
-                if (visitante.getAlmuerzo() && visitante.getMerienda()) {// Si tiene ambas opciones elige qué hacer
-                    switch (random.nextInt(2)) {        // Depende de la opcion, consume la merienda, el almuerzo o ambos
-                        case 0:
-                            visitante.consumirAlmuerzo();
-                            break;
-                        case 1:
-                            visitante.consumirMerienda();
-                            break;
-                        case 2:
-                            visitante.consumirAlmuerzo();
-                            visitante.consumirMerienda();                            
-                            break;
-                    }
-                }else if(visitante.getAlmuerzo()){  // Si solo tiene el almuerzo lo consume
-                    visitante.consumirAlmuerzo();
-                }else{                              // Si solo tiene la merienda la consume
-                    visitante.consumirMerienda();
-                }
+                consumirEnRestaurant(visitante);
                 restaurant1.salirRestaurant();
                 break;
             case 1:
-                Debuger.log(MSJ_PersonaActividadesRestaurant, Color.violeta() + Thread.currentThread().getName() + " ingresó a " + restaurant2.getName() + Color.reset());
+                Debuger.log(MSJ_PersonaActividadesRestaurant, Color.violeta() + Thread.currentThread().getName()
+                        + " ingresó a " + restaurant2.getName() + Color.reset());
                 restaurant2.entrarRestaurant();
-                if (visitante.getAlmuerzo() && visitante.getMerienda()) {// Si tiene ambas opciones elige qué hacer
-                    switch (random.nextInt(2)) {        // Depende de la opcion, consume la merienda, el almuerzo o ambos
-                        case 0:
-                            visitante.consumirAlmuerzo();
-                            break;
-                        case 1:
-                            visitante.consumirMerienda();
-                            break;
-                        case 2:
-                            visitante.consumirAlmuerzo();
-                            visitante.consumirMerienda();                            
-                            break;
-                    }
-                }else if(visitante.getAlmuerzo()){  // Si solo tiene el almuerzo lo consume
-                    visitante.consumirAlmuerzo();
-                }else{                              // Si solo tiene la merienda la consume
-                    visitante.consumirMerienda();
-                }
+                consumirEnRestaurant(visitante);
                 restaurant2.salirRestaurant();
                 break;
             case 2:
-                Debuger.log(MSJ_PersonaActividadesRestaurant, Color.violeta() + Thread.currentThread().getName() + " ingresó a " + restaurant3.getName() + Color.reset());
+                Debuger.log(MSJ_PersonaActividadesRestaurant, Color.violeta() + Thread.currentThread().getName()
+                        + " ingresó a " + restaurant3.getName() + Color.reset());
                 restaurant3.entrarRestaurant();
-                if (visitante.getAlmuerzo() && visitante.getMerienda()) {// Si tiene ambas opciones elige qué hacer
-                    switch (random.nextInt(2)) {        // Depende de la opcion, consume la merienda, el almuerzo o ambos
-                        case 0:
-                            visitante.consumirAlmuerzo();
-                            break;
-                        case 1:
-                            visitante.consumirMerienda();
-                            break;
-                        case 2:
-                            visitante.consumirAlmuerzo();
-                            visitante.consumirMerienda();                            
-                            break;
-                    }
-                }else if(visitante.getAlmuerzo()){  // Si solo tiene el almuerzo lo consume
-                    visitante.consumirAlmuerzo();
-                }else{                              // Si solo tiene la merienda la consume
-                    visitante.consumirMerienda();
-                }
+                consumirEnRestaurant(visitante);
                 restaurant3.salirRestaurant();
                 break;
         }
     }
 
-    private static void actividadSnorkel(){
+    private static void consumirEnRestaurant(Persona visitante) {
+        // simula la logica del consumo en el restaurant dependiendo de las comidas
+        // disponibles que tenga el visitante
+        Random random = new Random();
+
+        if (visitante.getAlmuerzo() && visitante.getMerienda()) {// Si tiene ambas opciones elige qué hacer
+            switch (random.nextInt(2)) { // Depende de la opcion, consume la merienda, el almuerzo o ambos
+                case 0:
+                    visitante.consumirAlmuerzo();
+                    break;
+                case 1:
+                    visitante.consumirMerienda();
+                    break;
+                case 2:
+                    visitante.consumirAlmuerzo();
+                    visitante.consumirMerienda();
+                    break;
+            }
+        } else if (visitante.getAlmuerzo()) { // Si solo tiene el almuerzo lo consume
+            visitante.consumirAlmuerzo();
+        } else { // Si solo tiene la merienda la consume
+            visitante.consumirMerienda();
+        }
+
+    }
+
+    private static void actividadSnorkel() {
         actSnorkel.pedirEquipo();
-        Debuger.log(MSJ_PersonaActividadesSnorkel, Color.violeta() + Thread.currentThread().getName() + " está haciendo snorkel" + Color.reset());
+        Debuger.log(MSJ_PersonaActividadesSnorkel,
+                Color.violeta() + Thread.currentThread().getName() + " está haciendo snorkel" + Color.reset());
         try {
             Thread.sleep(1000);
-        } catch (InterruptedException e) {}
+        } catch (InterruptedException e) {
+        }
         actSnorkel.regresarEquipo();
     }
 }
