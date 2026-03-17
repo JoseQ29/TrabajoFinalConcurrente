@@ -1,4 +1,7 @@
-package parqueecologico;
+package parqueecologico.Actividades.ActividadSnorkel;
+
+import parqueecologico.Parque;
+import parqueecologico.Herramientas.Debuger;
 
 public class AdministradorSnorkel implements Runnable {
     private static String nombre;

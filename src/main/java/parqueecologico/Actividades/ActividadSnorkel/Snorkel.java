@@ -1,7 +1,11 @@
-package parqueecologico;
+package parqueecologico.Actividades.ActividadSnorkel;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+
+import parqueecologico.Parque;
+import parqueecologico.Herramientas.Color;
+import parqueecologico.Herramientas.Debuger;
 
 public class Snorkel {
     private int equipoDisponible;                               // Son la cantidad de equipos que se pueden entregar a los visitantes en el momento

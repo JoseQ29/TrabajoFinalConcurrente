@@ -1,4 +1,4 @@
-package parqueecologico;
+package parqueecologico.Herramientas;
 
 public class Color {
     //colores para la consola

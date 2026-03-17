@@ -1,4 +1,4 @@
-package parqueecologico;
+package parqueecologico.Actividades.ActividadRestaurante;
 
 import java.util.LinkedList;
 import java.util.Queue;

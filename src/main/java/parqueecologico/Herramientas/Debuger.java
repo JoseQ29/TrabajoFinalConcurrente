@@ -1,4 +1,4 @@
-package parqueecologico;
+package parqueecologico.Herramientas;
 
 public class Debuger {
     private static final boolean mensajesHabilitados = true;

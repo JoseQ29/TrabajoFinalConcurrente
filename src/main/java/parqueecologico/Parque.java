@@ -7,6 +7,12 @@ package parqueecologico;
 import java.util.Random;
 import java.util.concurrent.Semaphore;
 
+import parqueecologico.Actividades.ActividadRestaurante.Restaurant;
+import parqueecologico.Actividades.ActividadSnorkel.AdministradorSnorkel;
+import parqueecologico.Actividades.ActividadSnorkel.Snorkel;
+import parqueecologico.Herramientas.Color;
+import parqueecologico.Herramientas.Debuger;
+
 /**
  *
  * @author Razor-PC V.3
@@ -101,12 +107,9 @@ public class Parque {
         // logica para simular que la persona va a las actividades del parque
         switch (opcion) {
             case 0: // Nado con delfines
+                actividadNadoDelfines();
                 Debuger.log(MSJ_PersonaActividades, Color.violeta() + Thread.currentThread().getName()
                         + " está en las actividades." + Color.reset());
-                try {
-                    Thread.sleep(1000); // Simula el tiempo que tarda en disfrutar de las actividades
-                } catch (InterruptedException e) {
-                }
                 break;
             case 1: // Disfruta de Snorkel
                 actividadSnorkel();
@@ -223,5 +226,10 @@ public class Parque {
         } catch (InterruptedException e) {
         }
         actSnorkel.regresarEquipo();
+    }
+
+    private static void actividadNadoDelfines() {
+        //simula la logica de la actividad de nado con delfines
+
     }
 }
