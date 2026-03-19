@@ -1,6 +1,5 @@
 package parqueecologico;
 
-
 import parqueecologico.Herramientas.Color;
 import parqueecologico.Herramientas.Debuger;
 /**

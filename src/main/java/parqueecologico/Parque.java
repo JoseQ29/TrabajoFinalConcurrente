@@ -6,7 +6,12 @@ package parqueecologico;
 
 import java.util.Random;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
+import parqueecologico.Actividades.ActividadNadoConDelfines.ActNadoDelfines;
+import parqueecologico.Actividades.ActividadNadoConDelfines.AdministradorNadoDelfines;
 import parqueecologico.Actividades.ActividadRestaurante.Restaurant;
 import parqueecologico.Actividades.ActividadSnorkel.AdministradorSnorkel;
 import parqueecologico.Actividades.ActividadSnorkel.Snorkel;
@@ -26,9 +31,10 @@ public class Parque {
     public static final boolean MSJ_PersonaShop = false;
     public static final boolean MSJ_PersonaActividades = false;
     public static final boolean MSJ_PersonaActividadesRestaurant = false;
-    public static final boolean MSJ_PersonaActividadesSnorkel = true;
+    public static final boolean MSJ_PersonaActividadesSnorkel = false;
     public static final boolean MSJ_AccionColectivos = false;
     public static final boolean MSJ_Salidas = true;
+    public static final boolean MSJ_PersonaActividadesNadoDelfines = true;
     // Debug
     static Semaphore semCajeros = new Semaphore(2); // Semáforo para controlar el acceso a los cajeros del shoping
     static Semaphore semMolinetes = new Semaphore(MOLINETES); // Semáforo para controlar el acceso a los molinetes
@@ -40,7 +46,8 @@ public class Parque {
     static Restaurant restaurant3 = new Restaurant(15, "Mc Donalds");
     // Snorkel
     static Snorkel actSnorkel = new Snorkel(5);
-
+    // Nado con delfines
+    static ActNadoDelfines actNadoDelfines = new ActNadoDelfines();
     public static void main(String[] args) {
 
         System.out.println("\n" + Color.verde() + "Color verde = acceso a los molinetes" + Color.reset());
@@ -60,8 +67,13 @@ public class Parque {
 
         Colectivo colectivo = new Colectivo();// crear el colectivo(monitor)
 
-        Thread horaParqueThread = new Thread(new HoraParque(colectivo), "Hora Parque");
+        Lock lock = new ReentrantLock();
+        Condition horaCerrada = lock.newCondition();
+        Thread horaParqueThread = new Thread(new HoraParque(colectivo, lock, horaCerrada), "Hora Parque");
         horaParqueThread.start(); // Iniciar el hilo que simula el horario del parque
+
+        Thread adminNadoDelfines = new Thread(new AdministradorNadoDelfines(actNadoDelfines,"PEPE", lock, horaCerrada), "Administrador Nado Delfines");
+        adminNadoDelfines.start(); // Iniciar el hilo que simula al administrador
 
         Thread conductorThread = new Thread(new Conductor(1, "Conductor 1 y 2", colectivo), "Conductor 1");
         conductorThread.start();// iniciar el hilo del conductor
@@ -225,6 +237,9 @@ public class Parque {
 
     private static void actividadNadoDelfines() {
         //simula la logica de la actividad de nado con delfines
-
+        actNadoDelfines.entrarActividad();
+        if(!Parque.estaCerrado()){//Si el parque esta cerrado no se entro a la actividad y por eso no se puede salir
+        actNadoDelfines.salirActividad();
+        }
     }
 }

@@ -1,4 +1,7 @@
 package parqueecologico;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class HoraParque implements Runnable {
 
@@ -6,15 +9,17 @@ public class HoraParque implements Runnable {
                                        // parque
     static int hora = 9;
     static int horaCierre = 17;
-
-    public HoraParque(Colectivo colectivo) {
+    private Lock lock = new ReentrantLock();
+    private Condition horaCerrada = lock.newCondition();
+    
+    public HoraParque(Colectivo colectivo, Lock lock, Condition horaCerrada) {
         this.colectivo = colectivo;
+        this.lock = lock;
+        this.horaCerrada = horaCerrada;
     }
 
     public void run() {
         // logica para simular el horario de apertura y cierre del parque
-        // El parque abre a las 9:00 y cierra a las 17:00
-        // Se simula una hora cada 10 segundos y el parque esta abierto 7 horas.
         Parque.abrirParque();
         do { 
             try {
@@ -39,6 +44,13 @@ public class HoraParque implements Runnable {
             colectivo.notifyAll(); // Notificar a los hilos que están esperando en el colectivo para que puedan
                                    // verificar la hora y actuar en consecuencia
         }
+        lock.lock();
+        try {
+                horaCerrada.signalAll(); // Notificar a los hilos que están esperando en la condición de hora cerrada
+        } finally {
+            lock.unlock();
+        }
+        
     }
 
     public static synchronized int getHora() {

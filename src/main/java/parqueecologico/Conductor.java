@@ -1,5 +1,8 @@
 package parqueecologico;
 
+import parqueecologico.Herramientas.Color;
+import parqueecologico.Herramientas.Debuger;
+
 /**
  *
  * @author Razor-PC V.3
@@ -25,7 +28,7 @@ public class Conductor implements Runnable {
         while (!Parque.estaCerrado()) { // El conductor sigue trabajando mientras el parque no esté cerrado
             try {
                 colectivo.iniciarViaje();
-                Thread.sleep(500); // Simula un viaje de 5 segundos *************REVISAR******
+                Thread.sleep(500); // Simula un viaje de 5 segundos 
                 colectivo.terminarViaje();
             } catch (InterruptedException e) {
             }
