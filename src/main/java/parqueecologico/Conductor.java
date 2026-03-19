@@ -5,6 +5,9 @@ package parqueecologico;
  * @author Razor-PC V.3
  */
 
+import parqueecologico.Herramientas.Color;
+import parqueecologico.Herramientas.Debuger;
+
 public class Conductor implements Runnable {
 
     private final int idConductor; // Identificador del conductor

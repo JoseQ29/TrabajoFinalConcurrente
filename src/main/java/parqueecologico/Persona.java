@@ -2,6 +2,9 @@ package parqueecologico;
 
 import java.util.Random;
 
+import parqueecologico.Herramientas.Color;
+import parqueecologico.Herramientas.Debuger;
+
 /**
  *
  * @author Razor-PC V.3
