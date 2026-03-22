@@ -3,6 +3,9 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import parqueecologico.Actividades.ActividadMundoAventura.ActMundoAventura;
+
+
 public class HoraParque implements Runnable {
 
     private final Colectivo colectivo; // Referencia al colectivo para controlar su funcionamiento según el horario del
@@ -10,12 +13,14 @@ public class HoraParque implements Runnable {
     static int hora = 9;
     static int horaCierre = 17;
     private Lock lock = new ReentrantLock();
-    private Condition horaCerrada = lock.newCondition();
+    private Condition siguienteHora = lock.newCondition();
+    private static ActMundoAventura mundoAventura;
     
-    public HoraParque(Colectivo colectivo, Lock lock, Condition horaCerrada) {
+    public HoraParque(Colectivo colectivo, Lock lock, Condition siguienteHora, ActMundoAventura mundoAventura) {
         this.colectivo = colectivo;
         this.lock = lock;
-        this.horaCerrada = horaCerrada;
+        this.siguienteHora = siguienteHora;
+        this.mundoAventura = mundoAventura;
     }
 
     public void run() {
@@ -28,6 +33,7 @@ public class HoraParque implements Runnable {
                 System.out.println("Son las " + hora + ":00 pm");
                 if (hora == horaCierre) {
                     Parque.cerrarParque();
+                    mundoAventura.notificarCierreTirolesa();
                     synchronized (colectivo) {
                         colectivo.notifyAll();      // Al cerrar el parque se les notifica a los colectivos paraque terminen su funcionamiento
                     }                    
@@ -46,7 +52,7 @@ public class HoraParque implements Runnable {
         }
         lock.lock();
         try {
-                horaCerrada.signalAll(); // Notificar a los hilos que están esperando en la condición de hora cerrada
+                siguienteHora.signalAll(); // Notificar a los hilos que cambio la hora
         } finally {
             lock.unlock();
         }
