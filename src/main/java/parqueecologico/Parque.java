@@ -234,12 +234,7 @@ public class Parque {
 
     private static void actividadSnorkel() {
         actSnorkel.pedirEquipo();
-        Debuger.log(MSJ_PersonaActividadesSnorkel,
-                Color.violeta() + Thread.currentThread().getName() + " está haciendo snorkel" + Color.reset());
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-        }
+        actSnorkel.hacerSnorkel();
         actSnorkel.regresarEquipo();
     }
 

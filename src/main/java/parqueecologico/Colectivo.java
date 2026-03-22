@@ -2,7 +2,6 @@ package parqueecologico;
 
 import parqueecologico.Herramientas.Color;
 import parqueecologico.Herramientas.Debuger;
-
 /**
  *
  * @author Razor-PC V.3
