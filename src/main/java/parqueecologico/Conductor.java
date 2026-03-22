@@ -1,16 +1,11 @@
 package parqueecologico;
 
-import parqueecologico.Herramientas.Color;
 import parqueecologico.Herramientas.Debuger;
 
 /**
  *
  * @author Razor-PC V.3
  */
-
-import parqueecologico.Herramientas.Color;
-import parqueecologico.Herramientas.Debuger;
-
 public class Conductor implements Runnable {
 
     private final int idConductor; // Identificador del conductor
@@ -33,7 +28,7 @@ public class Conductor implements Runnable {
             } catch (InterruptedException e) {
             }
         }
-        Debuger.log(Parque.MSJ_Salidas, Color.rojo() + nombre + " se va a su casa porque el parque está cerrado." + Color.reset());
+        Debuger.log(Parque.MSJ_Salidas, nombre + idConductor + " se va a su casa porque el parque está cerrado.");
     }
 
 }

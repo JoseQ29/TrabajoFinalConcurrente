@@ -4,6 +4,8 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+import parqueecologico.Herramientas.Debuger;
+import parqueecologico.Parque;
 
 public class Restaurant {
     private int capacidadMaxima;                            // Variable que contiene la capacidad maxima del restaurant
@@ -29,6 +31,7 @@ public class Restaurant {
                 miTurno.await();
             }
             cantPersonasComiendo++;
+            Debuger.log(Parque.MSJ_PersonaActividadesRestaurant, "nueva persona comiendo en " + this.nombre + ", cantidadActual: " + cantPersonasComiendo);
         } 
         catch (InterruptedException e) {}
         finally {
@@ -40,6 +43,7 @@ public class Restaurant {
         lock.lock();
         try {
             cantPersonasComiendo--;
+            Debuger.log(Parque.MSJ_PersonaActividadesRestaurant, "una persona se va de " + this.nombre + ", cantidadActual: " + cantPersonasComiendo);
             if (!colaEspera.isEmpty()) {
                 Condition siguiente = colaEspera.poll();    // Obtengo el primero de la fila de espera en siguiente
                 siguiente.signal();                         // Despierto al siguiente en la fila para que entre al restaurant

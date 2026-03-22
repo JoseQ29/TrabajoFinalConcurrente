@@ -18,7 +18,8 @@ public class ActNadoDelfines {
                                                   // atienda
     private final Condition visitanteEsperaTerminar; // condicion para que los visitantes esperen a que la actividad
                                                      // termine
-    private final Condition adminEsperaSalida; // condicion para que el admin espere a que los visitantes salgan antes de atender a los siguientes
+    private final Condition adminEsperaSalida; // condicion para que el admin espere a que los visitantes salgan antes
+                                               // de atender a los siguientes
     private boolean actividadEnCurso; // indica si la actividad esta en curso o no
 
     public ActNadoDelfines() {
@@ -45,9 +46,9 @@ public class ActNadoDelfines {
                                 + " ingresó al lugar del nado con delfines, esperando a que la actividad comience."
                                 + Color.reset());
                 visitantesEnEspera++;
-                while(!actividadEnCurso){
+                while (!Parque.estaCerrado() && !actividadEnCurso) {
                     visitanteEsperaAdmin.await();
-                } 
+                }
             } else {
                 Debuger.log(Parque.MSJ_PersonaActividadesNadoDelfines,
                         Color.rojo() + Thread.currentThread().getName()
@@ -64,21 +65,27 @@ public class ActNadoDelfines {
     public void salirActividad() {
         locks.lock();
         try {
-            while(!actividadEnCurso){
+            while (!Parque.estaCerrado() && !actividadEnCurso) {
                 visitanteEsperaTerminar.await();
             }
-            visitantesEnEspera--;
-            Debuger.log(Parque.MSJ_PersonaActividadesNadoDelfines,
-                    Thread.currentThread().getName() + " salió del lugar del nado con delfines." + Color.reset());
-            if (visitantesEnEspera == 0) {
+            if (!Parque.estaCerrado()) {
+                visitantesEnEspera--;
                 Debuger.log(Parque.MSJ_PersonaActividadesNadoDelfines,
-                        Color.violeta() + "No hay más visitantes en el nado con delfines, esperando a que ingresen más personas para comenzar la actividad." + Color.reset());
-                actividadEnCurso = false;
-                visitanteEsperaEntrar.signalAll();// si ya no hay mas personas en el lugar de la actividad, se notifica
-                                                  // a los que esperan afuera para entrar
-                adminEsperaSalida.signalAll(); // se notifica al admin para que pueda atender a los siguientes visitantes
-            }
-        } catch (Exception e) {
+                        Thread.currentThread().getName() + " salió del lugar del nado con delfines." + Color.reset());
+                if (visitantesEnEspera == 0) {
+                    Debuger.log(Parque.MSJ_PersonaActividadesNadoDelfines,
+                            Color.violeta()
+                                    + "No hay más visitantes en el nado con delfines, esperando a que ingresen más personas para comenzar la actividad."
+                                    + Color.reset());
+                    actividadEnCurso = false;
+                    visitanteEsperaEntrar.signalAll();// si ya no hay mas personas en el lugar de la actividad, se
+                                                      // notifica
+                                                      // a los que esperan afuera para entrar
+                    adminEsperaSalida.signalAll(); // se notifica al admin para que pueda atender a los siguientes
+                                                   // visitantes
+                }
+            } 
+        } catch (InterruptedException e) {
         } finally {
             locks.unlock();
         }
@@ -113,8 +120,10 @@ public class ActNadoDelfines {
     public void terminarActividad() {
         locks.lock();
         try {
+            visitanteEsperaEntrar.signalAll();
             visitanteEsperaAdmin.signalAll();// avisa a los visitantes que esperan para entrar que el
-                                                // parque esta cerrado y no se va a realizar la actividad
+                                             // parque esta cerrado y no se va a realizar la actividad
+            visitanteEsperaTerminar.signalAll();                                
         } finally {
             locks.unlock();
         }

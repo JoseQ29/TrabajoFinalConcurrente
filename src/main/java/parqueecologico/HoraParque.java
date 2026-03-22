@@ -1,10 +1,12 @@
 package parqueecologico;
+
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import parqueecologico.Actividades.ActividadMundoAventura.ActMundoAventura;
-
+import parqueecologico.Actividades.ActividadSnorkel.Snorkel;
+import parqueecologico.Herramientas.Debuger;
 
 public class HoraParque implements Runnable {
 
@@ -14,33 +16,44 @@ public class HoraParque implements Runnable {
     static int horaCierre = 17;
     private Lock lock = new ReentrantLock();
     private Condition siguienteHora = lock.newCondition();
-    private static ActMundoAventura mundoAventura;
-    
-    public HoraParque(Colectivo colectivo, Lock lock, Condition siguienteHora, ActMundoAventura mundoAventura) {
+    private final ActMundoAventura mundoAventura;
+    private final Snorkel snorkel;
+
+    public HoraParque(Colectivo colectivo, Lock lock, Condition siguienteHora, ActMundoAventura mundoAventura, Snorkel snorkel) {
         this.colectivo = colectivo;
         this.lock = lock;
         this.siguienteHora = siguienteHora;
         this.mundoAventura = mundoAventura;
+        this.snorkel = snorkel;
     }
 
     public void run() {
         // logica para simular el horario de apertura y cierre del parque
         Parque.abrirParque();
-        do { 
+        do {
             try {
                 Thread.sleep(1000); // Simula el tiempo que el pasa entre hora y hora
                 sumarHora();
                 System.out.println("Son las " + hora + ":00 pm");
                 if (hora == horaCierre) {
                     Parque.cerrarParque();
+                    snorkel.notificarCierre();
                     mundoAventura.notificarCierreTirolesa();
                     synchronized (colectivo) {
-                        colectivo.notifyAll();      // Al cerrar el parque se les notifica a los colectivos paraque terminen su funcionamiento
-                    }                    
+                        colectivo.notifyAll(); // Al cerrar el parque se les notifica a los colectivos paraque terminen
+                                               // su funcionamiento
+                    }
+                    lock.lock();
+                    try {
+                        siguienteHora.signalAll();
+                    } finally {
+                        lock.unlock();
+                    }
                 }
-            } catch (InterruptedException e) {}
-        } while (hora < horaCierre);
-
+            } catch (InterruptedException e) {
+            }
+        } while (hora <= horaCierre);
+        Debuger.log(Parque.MSJ_Salidas, "horaParque termino");
     }
 
     private void sumarHora() {
@@ -52,11 +65,11 @@ public class HoraParque implements Runnable {
         }
         lock.lock();
         try {
-                siguienteHora.signalAll(); // Notificar a los hilos que cambio la hora
+            siguienteHora.signalAll();
+        } catch (Exception e) {
         } finally {
             lock.unlock();
         }
-        
     }
 
     public static synchronized int getHora() {
