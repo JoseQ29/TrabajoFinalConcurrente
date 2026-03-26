@@ -62,7 +62,8 @@ public class Snorkel {
     public void regresarEquipo() {
         mutex.lock();
         try {
-            if (!Parque.estaCerrado() || equipoDisponible < equiposTotal) {
+            System.out.println(equipoDisponible + "/" + equiposTotal);
+            if (equipoDisponible < equiposTotal) {
                 equipoDisponible++;
                 Debuger.log(Parque.MSJ_PersonaActividadesSnorkel,
                         Color.violeta() + Thread.currentThread().getName() + " devolvió el equipo que usó."
@@ -72,7 +73,7 @@ public class Snorkel {
                 adminEsperaEquipo.signal();
             }
             if (Parque.estaCerrado() && equipoDisponible == equiposTotal) {
-                adminEsperaVisitantes.signalAll();
+                adminEsperaEquipo.signalAll();
             }
         } finally {
             mutex.unlock();
@@ -82,7 +83,7 @@ public class Snorkel {
     public void atenderVisitante() {
         mutex.lock();
         try {
-            while (visitantesEsperando <= 0) {
+            while (!Parque.estaCerrado() && visitantesEsperando <= 0) {
                 adminEsperaVisitantes.await();
             }
             if (!Parque.estaCerrado()) {
@@ -94,18 +95,26 @@ public class Snorkel {
                 while (equipoDisponible <= 0) {
                     adminEsperaEquipo.await();
                 }
-                equipoDisponible--;
-                Debuger.log(Parque.MSJ_PersonaActividadesSnorkel,
-                        Color.violeta() + Thread.currentThread().getName() + " encontró un equipo para un visitante"
-                                + Color.reset() + "visitantesEsperando/equipos: " + visitantesEsperando + "/"
-                                + equipoDisponible);
-                visitanteEsperaEquipo.signal();
-                adminsDisponibles++;
-                visitanteEsperaAdmin.signal();
+                if(!Parque.estaCerrado()){
+                    equipoDisponible--;
+                    Debuger.log(Parque.MSJ_PersonaActividadesSnorkel,
+                            Color.violeta() + Thread.currentThread().getName() + " encontró un equipo para un visitante"
+                                    + Color.reset() + "visitantesEsperando/equipos: " + visitantesEsperando + "/"
+                                    + equipoDisponible);
+                    visitanteEsperaEquipo.signal();
+                    adminsDisponibles++;
+                    visitanteEsperaAdmin.signal();
+                }else{
+                    adminsDisponibles++;
+                }
             } else {
+                while (equipoDisponible != equiposTotal) { 
+                    adminEsperaEquipo.await();
+                }
                 Debuger.log(Parque.MSJ_PersonaActividadesSnorkel,
                         Color.violeta() + "El parque ya cerró, vuelvan mañana");
                 visitanteEsperaAdmin.signalAll(); // Libera a todos los visitantes que esperan por ser atendidos
+                visitanteEsperaEquipo.signalAll();
                 actividadFinalizada = true;
             }
         } catch (InterruptedException e) {
@@ -124,5 +133,15 @@ public class Snorkel {
             } catch (InterruptedException e) {
             }
         }
+    }
+
+    public void notificarCierre(){
+        mutex.lock();
+        try {
+            adminEsperaVisitantes.signalAll();
+        } finally {
+            mutex.unlock();
+        }
+            
     }
 }

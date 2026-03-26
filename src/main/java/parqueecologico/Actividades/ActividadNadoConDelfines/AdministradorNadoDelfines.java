@@ -2,13 +2,12 @@ package parqueecologico.Actividades.ActividadNadoConDelfines;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 
-import parqueecologico.Herramientas.Color;
 import parqueecologico.Herramientas.Debuger;
 import parqueecologico.Parque;
 
 public class AdministradorNadoDelfines implements Runnable {
-    private static String nombre;
-    private static ActNadoDelfines actividad;
+    private String nombre;
+    private ActNadoDelfines actividad;
     private final Lock lock;
     private final Condition cambioHora;
 
@@ -34,7 +33,7 @@ public class AdministradorNadoDelfines implements Runnable {
             }
         }
         actividad.terminarActividad(); // Si el parque cierra mientras la actividad esta en curso, se termina la actividad para que los visitantes puedan salir
-        Debuger.log(Parque.MSJ_PersonaActividadesNadoDelfines, Color.rojo() + Thread.currentThread().getName() + " se va a su casa porque el parque está cerrado." + Color.reset());
+        Debuger.log(Parque.MSJ_Salidas, Thread.currentThread().getName() + " se va a su casa porque el parque está cerrado.");
     }
     
 

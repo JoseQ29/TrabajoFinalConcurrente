@@ -71,6 +71,7 @@ public class Persona implements Runnable {
 
         if (viajo) {
             this.tienePulsera = Parque.ingresarParque();
+            Parque.personaEntra();
             while (!Parque.estaCerrado()) { // mientras el parque no este cerrado, la persona disfruta del shop o las
                                             // actividades
                 if (random.nextBoolean()) { // Si es true se va al shop, si es false se va a alguna de las actividades
@@ -83,13 +84,14 @@ public class Persona implements Runnable {
                         }
                         Parque.irActividades(opcion, this);
                     }else{
-                        Parque.irActividades(random.nextInt(5), this);
+                        Parque.irActividades(random.nextInt(6), this);
                     }                    
                 }
             }
 
         }
         Debuger.log(Parque.MSJ_Salidas, Color.rojo() + Thread.currentThread().getName() + " se va del parque." + Color.reset());
+        Parque.personaSale();
     }
 
 }
