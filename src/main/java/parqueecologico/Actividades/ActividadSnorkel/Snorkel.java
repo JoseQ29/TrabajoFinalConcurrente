@@ -50,9 +50,7 @@ public class Snorkel {
                                     + equipoDisponible);
                     visitanteEsperaEquipo.await();
                 } else {
-                    visitantesEsperando--;
-                    System.out.println("visitantesEsperando/equipos: " + visitantesEsperando + "/"
-                            + equipoDisponible);
+                    visitantesEsperando--;      //Saca de la cola a los visitantes que esperaban por la actividad.
                 }
             }
         } catch (InterruptedException e) {
@@ -64,7 +62,6 @@ public class Snorkel {
     public void regresarEquipo() {
         mutex.lock();
         try {
-            System.out.println(equipoDisponible + "/" + equiposTotal);
             if (!Parque.estaCerrado() || equipoDisponible < equiposTotal) {
                 equipoDisponible++;
                 Debuger.log(Parque.MSJ_PersonaActividadesSnorkel,

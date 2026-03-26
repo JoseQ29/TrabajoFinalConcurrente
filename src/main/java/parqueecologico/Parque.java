@@ -92,8 +92,6 @@ public class Parque {
             Thread.sleep(10);
             Debuger.log(MSJ_AccesoMolinetes,
                     Color.verde() + Thread.currentThread().getName() + " paso por el molinete." + Color.reset());
-            // System.out.println(Color.verde() + Thread.currentThread().getName() + " paso
-            // por el molinete." + Color.reset());
             semMolinetes.release();
         } catch (InterruptedException e) {
         }
@@ -104,8 +102,6 @@ public class Parque {
         // logica para simular que la persona va al shop del parque
         Debuger.log(MSJ_PersonaShop,
                 Color.cyan() + Thread.currentThread().getName() + " está en el shop." + Color.reset());
-        // System.out.println(Color.cyan() + Thread.currentThread().getName() + " está
-        // en el shop." + Color.reset());
         try {
             Thread.sleep(500); // Simula el tiempo que tarda en recorrer el shop
             semCajeros.acquire(); // La persona pasa a pagar
