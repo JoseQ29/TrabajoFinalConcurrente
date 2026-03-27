@@ -253,8 +253,7 @@ public class Parque {
     }
 
     private static void actividadSnorkel() {
-        actSnorkel.pedirEquipo();
-        if(!Parque.estaCerrado()){
+        if(actSnorkel.pedirEquipo()){
             actSnorkel.hacerSnorkel();
             actSnorkel.regresarEquipo();
         }
