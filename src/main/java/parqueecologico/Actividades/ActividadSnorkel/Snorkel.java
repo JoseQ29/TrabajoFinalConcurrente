@@ -52,9 +52,7 @@ public class Snorkel {
                     visitanteEsperaEquipo.await();
                     tieneEquipo = true;
                 } else {
-                    visitantesEsperando--;
-                    System.out.println("visitantesEsperando/equipos: " + visitantesEsperando + "/"
-                            + equipoDisponible);
+                    visitantesEsperando--;      //Saca de la cola a los visitantes que esperaban por la actividad.
                 }
             }
         } catch (InterruptedException e) {

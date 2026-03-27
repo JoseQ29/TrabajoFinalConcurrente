@@ -5,7 +5,6 @@
 package parqueecologico;
 
 import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -134,8 +133,6 @@ public class Parque {
         // logica para simular que la persona va al shop del parque
         Debuger.log(MSJ_PersonaShop,
                 Color.cyan() + Thread.currentThread().getName() + " está en el shop." + Color.reset());
-        // System.out.println(Color.cyan() + Thread.currentThread().getName() + " está
-        // en el shop." + Color.reset());
         try {
             Thread.sleep(500); // Simula el tiempo que tarda en recorrer el shop
             semCajeros.acquire(); // La persona pasa a pagar
