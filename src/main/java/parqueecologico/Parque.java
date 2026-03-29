@@ -10,6 +10,8 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import parqueecologico.Actividades.ActividadFaroTobogan.ActFaroTobogan;
+import parqueecologico.Actividades.ActividadFaroTobogan.AdministradorTobogan;
 import parqueecologico.Actividades.ActividadMundoAventura.ActMundoAventura;
 import parqueecologico.Actividades.ActividadMundoAventura.AdministradorTirolesa;
 import parqueecologico.Actividades.ActividadNadoConDelfines.ActNadoDelfines;
@@ -33,7 +35,7 @@ public class Parque {
     public static final boolean MSJ_PersonaShop = false;
     public static final boolean MSJ_PersonaActividades = false;
     public static final boolean MSJ_PersonaActividadesRestaurant = false;
-    public static final boolean MSJ_PersonaActividadesSnorkel = true;
+    public static final boolean MSJ_PersonaActividadesSnorkel = false;
     public static final boolean MSJ_AccionColectivos = false;
     public static final boolean MSJ_Salidas = true;
     public static final boolean MSJ_PersonaSale = false;
@@ -41,6 +43,8 @@ public class Parque {
     public static final boolean MSJ_PersonaActividadesMundoAventuraCuerdas = false;
     public static final boolean MSJ_PersonaActividadesMundoAventuraSaltos = false;
     public static final boolean MSJ_PersonaActividadesMundoAventuraTirolesa = false;
+    public static final boolean MSJ_PersonaActividadesFaroTobogan = true;
+
     // Debug
     static Semaphore semCajeros = new Semaphore(2); // Semáforo para controlar el acceso a los cajeros del shoping
     static Semaphore semMolinetes = new Semaphore(MOLINETES); // Semáforo para controlar el acceso a los molinetes
@@ -56,6 +60,8 @@ public class Parque {
     static ActNadoDelfines actNadoDelfines = new ActNadoDelfines();
     // Mundo de aventuras
     static ActMundoAventura actMundoAventura = new ActMundoAventura();
+    // Faro Toboganes
+    static ActFaroTobogan actFaroTobogan = new ActFaroTobogan(5);
 
     public static void main(String[] args) {
 
@@ -71,7 +77,8 @@ public class Parque {
 
         Lock lock = new ReentrantLock();
         Condition siguienteHora = lock.newCondition();
-        Thread horaParqueThread = new Thread(new HoraParque(colectivo, lock, siguienteHora, actMundoAventura, actSnorkel),
+        Thread horaParqueThread = new Thread(
+                new HoraParque(colectivo, lock, siguienteHora, actMundoAventura, actSnorkel),
                 "Hora Parque");
         horaParqueThread.start(); // Iniciar el hilo que simula el horario del parque
 
@@ -81,6 +88,10 @@ public class Parque {
                 "administradorSnorkel 2");
         adminSnorkel1.start();
         adminSnorkel2.start();
+
+        Thread adminTobogan = new Thread(new AdministradorTobogan(actFaroTobogan, "adminToboganes"),
+                "administrador Toboganes");
+        adminTobogan.start();
 
         Thread adminNadoDelfines = new Thread(
                 new AdministradorNadoDelfines(actNadoDelfines, "PEPE", lock, siguienteHora),
@@ -97,7 +108,7 @@ public class Parque {
             Thread personaThread = new Thread(new Persona(random.nextBoolean(), false, colectivo), "Persona " + i);
             personaThread.start();
         }
- 
+
     }
 
     public synchronized static void personaSale() {
@@ -150,8 +161,6 @@ public class Parque {
                 break;
             case 1: // Disfruta de Snorkel
                 actividadSnorkel();
-                Debuger.log(MSJ_PersonaActividades, Color.violeta() + Thread.currentThread().getName()
-                        + " está en snorkel." + Color.reset());
                 break;
             case 2: // Restaurante
                 actividadRestaurant(visitante);
@@ -160,12 +169,7 @@ public class Parque {
                 actividadMundoAventura();
                 break;
             case 4: // Faro/Mirador con descenso en tobogán
-                Debuger.log(MSJ_PersonaActividades, Color.violeta() + Thread.currentThread().getName()
-                        + " está en las actividades." + Color.reset());
-                try {
-                    Thread.sleep(10); // Simula el tiempo que tarda en disfrutar de las actividades
-                } catch (InterruptedException e) {
-                }
+                actividadFaroTobogan();
                 break;
             case 5: // Carreras de Gomones
                 Debuger.log(MSJ_PersonaActividades, Color.violeta() + Thread.currentThread().getName()
@@ -250,10 +254,15 @@ public class Parque {
     }
 
     private static void actividadSnorkel() {
-        if(actSnorkel.pedirEquipo()){
+        if (actSnorkel.pedirEquipo()) {
             actSnorkel.hacerSnorkel();
             actSnorkel.regresarEquipo();
         }
+    }
+
+    private static void actividadFaroTobogan() {
+        actFaroTobogan.entrarEscalera();
+        actFaroTobogan.realizarActividadFaroTobogan();
     }
 
     private static void actividadNadoDelfines() {
