@@ -23,11 +23,8 @@ public class Colectivo {
             horaUltimoViajeRealizado = HoraParque.getHora();
             viajeEnCurso = true;
             Debuger.log(Parque.MSJ_AccionColectivos, Color.azul() + "Viaje iniciado con " + pasajerosActuales + " pasajeros." + Color.reset());
-            //System.out.println(Color.azul() + "Viaje iniciado con " + pasajerosActuales + " pasajeros." + Color.reset());
         } else {
             Debuger.log(Parque.MSJ_AccionColectivos, Color.rojo() + "No se puede iniciar el viaje porque el parque está cerrado." + Color.reset());
-            //System.out.println(
-            //        Color.rojo() + "No se puede iniciar el viaje porque el parque está cerrado." + Color.reset());
         }
 
     }
@@ -51,8 +48,6 @@ public class Colectivo {
         pasajerosActuales++;
         Debuger.log(Parque.MSJ_AccionColectivos, Color.azul() + Thread.currentThread().getName() + " subió al colectivo. Pasajeros actuales: "
                 + pasajerosActuales + Color.reset());
-        //System.out.println(Color.azul() + Thread.currentThread().getName() + " subió al colectivo. Pasajeros actuales: "
-        //        + pasajerosActuales + Color.reset());
         if (pasajerosActuales == capacidadMaxima) {
             notifyAll(); // Notificar al conductor para iniciar el viaje
         }
@@ -69,9 +64,6 @@ public class Colectivo {
             pasajerosActuales--;
             Debuger.log(Parque.MSJ_AccionColectivos, Color.azul() + Thread.currentThread().getName() + " bajó del colectivo. Pasajeros actuales: "
                             + pasajerosActuales + Color.reset());
-            //System.out.println(
-            //        Color.azul() + Thread.currentThread().getName() + " bajó del colectivo. Pasajeros actuales: "
-            //                + pasajerosActuales + Color.reset());
             if (pasajerosActuales == 0) {
                 viajeTerminado = false; // Reiniciar el estado del viaje para el próximo grupo de pasajeros
                 notifyAll(); // Notificar a las personas para subir
@@ -79,8 +71,6 @@ public class Colectivo {
         } else {
             Debuger.log(Parque.MSJ_Salidas, Color.rojo() + Thread.currentThread().getName()
                     + " no pudo viajar en colectivo porque el parque está cerrado." + Color.reset());
-            //System.out.println(Color.rojo() + Thread.currentThread().getName()
-            //        + " no pudo viajar en colectivo porque el parque está cerrado." + Color.reset());
         }
         return viajo;
     }

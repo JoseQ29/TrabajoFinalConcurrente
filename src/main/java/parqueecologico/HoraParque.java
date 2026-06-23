@@ -4,6 +4,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import parqueecologico.Actividades.ActividadCarreraGomones.Tren;
 import parqueecologico.Actividades.ActividadMundoAventura.ActMundoAventura;
 import parqueecologico.Actividades.ActividadSnorkel.Snorkel;
 import parqueecologico.Herramientas.Debuger;
@@ -12,6 +13,7 @@ public class HoraParque implements Runnable {
 
     private final Colectivo colectivo; // Referencia al colectivo para controlar su funcionamiento según el horario del
                                        // parque
+    private final Tren tren; // Referencia al tren para controlar su funcionamiento según el horario del parque
     static int hora = 9;
     static int horaCierre = 17;
     private Lock lock = new ReentrantLock();
@@ -19,12 +21,13 @@ public class HoraParque implements Runnable {
     private final ActMundoAventura mundoAventura;
     private final Snorkel snorkel;
 
-    public HoraParque(Colectivo colectivo, Lock lock, Condition siguienteHora, ActMundoAventura mundoAventura, Snorkel snorkel) {
+    public HoraParque(Colectivo colectivo, Tren tren, Lock lock, Condition siguienteHora, ActMundoAventura mundoAventura, Snorkel snorkel) {
         this.colectivo = colectivo;
         this.lock = lock;
         this.siguienteHora = siguienteHora;
         this.mundoAventura = mundoAventura;
         this.snorkel = snorkel;
+        this.tren = tren;
     }
 
     public void run() {
@@ -40,8 +43,11 @@ public class HoraParque implements Runnable {
                     snorkel.notificarCierre();
                     mundoAventura.notificarCierreTirolesa();
                     synchronized (colectivo) {
-                        colectivo.notifyAll(); // Al cerrar el parque se les notifica a los colectivos paraque terminen
+                        colectivo.notifyAll(); // Al cerrar el parque se les notifica a los colectivos del parque para que terminen
                                                // su funcionamiento
+                    }
+                    synchronized (tren) {
+                        tren.notifyAll(); // Al cerrar el parque se les notifica al tren del parque para que termine su funcionamiento
                     }
                     lock.lock();
                     try {
@@ -62,6 +68,9 @@ public class HoraParque implements Runnable {
         synchronized (colectivo) {
             colectivo.notifyAll(); // Notificar a los hilos que están esperando en el colectivo para que puedan
                                    // verificar la hora y actuar en consecuencia
+        }
+        synchronized (tren) {
+            tren.notifyAll(); // Notificar al tren para que actualice su estado según la nueva hora
         }
         lock.lock();
         try {
