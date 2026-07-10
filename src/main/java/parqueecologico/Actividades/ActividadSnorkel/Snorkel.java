@@ -116,6 +116,9 @@ public class Snorkel {
                 while (equipoDisponible != equiposTotal) {
                     adminEsperaEquipo.await();
                 }
+                while(visitantesEsperando != 0) {
+                    visitanteEsperaEquipo.signalAll();
+                }
                 Debuger.log(Parque.MSJ_PersonaActividadesSnorkel,
                         Color.violeta() + "El parque ya cerró, vuelvan mañana");
                 actividadFinalizada = true;

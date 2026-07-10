@@ -3,51 +3,59 @@ package parqueecologico;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
+import parqueecologico.Actividades.ActividadCarreraGomones.ActCarreraGomones;
 import parqueecologico.Actividades.ActividadCarreraGomones.Tren;
 import parqueecologico.Actividades.ActividadMundoAventura.ActMundoAventura;
 import parqueecologico.Actividades.ActividadSnorkel.Snorkel;
+import parqueecologico.Actividades.ActividadFaroTobogan.ActFaroTobogan; // Importante
 import parqueecologico.Herramientas.Debuger;
 
 public class HoraParque implements Runnable {
 
-    private final Colectivo colectivo; // Referencia al colectivo para controlar su funcionamiento según el horario del
-                                       // parque
-    private final Tren tren; // Referencia al tren para controlar su funcionamiento según el horario del parque
+    private final Colectivo colectivo;
+    private final Tren tren;
     static int hora = 9;
     static int horaCierre = 17;
     private Lock lock = new ReentrantLock();
     private Condition siguienteHora = lock.newCondition();
     private final ActMundoAventura mundoAventura;
     private final Snorkel snorkel;
+    private final ActCarreraGomones actCarreraGomones;
+    private final ActFaroTobogan actFaroTobogan; // 1) Nueva referencia agregada
 
-    public HoraParque(Colectivo colectivo, Tren tren, Lock lock, Condition siguienteHora, ActMundoAventura mundoAventura, Snorkel snorkel) {
+    // Constructor actualizado
+    public HoraParque(Colectivo colectivo, Tren tren, Lock lock, Condition siguienteHora,
+            ActMundoAventura mundoAventura, Snorkel snorkel, ActCarreraGomones actCarreraGomones,
+            ActFaroTobogan actFaroTobogan) {
         this.colectivo = colectivo;
         this.lock = lock;
         this.siguienteHora = siguienteHora;
         this.mundoAventura = mundoAventura;
         this.snorkel = snorkel;
         this.tren = tren;
+        this.actCarreraGomones = actCarreraGomones;
+        this.actFaroTobogan = actFaroTobogan; // Asignación
     }
 
     public void run() {
-        // logica para simular el horario de apertura y cierre del parque
         Parque.abrirParque();
         do {
             try {
-                Thread.sleep(1000); // Simula el tiempo que el pasa entre hora y hora
+                Thread.sleep(1000); 
                 sumarHora();
                 System.out.println("Son las " + hora + ":00 pm");
                 if (hora == horaCierre) {
                     Parque.cerrarParque();
                     snorkel.notificarCierre();
                     mundoAventura.notificarCierreTirolesa();
+                    actCarreraGomones.notificarCierre(); 
+                    actFaroTobogan.notificarCierre(); // 1) Invocación de la notificación de cierre
+                    
                     synchronized (colectivo) {
-                        colectivo.notifyAll(); // Al cerrar el parque se les notifica a los colectivos del parque para que terminen
-                                               // su funcionamiento
+                        colectivo.notifyAll();
                     }
                     synchronized (tren) {
-                        tren.notifyAll(); // Al cerrar el parque se les notifica al tren del parque para que termine su funcionamiento
+                        tren.notifyAll();
                     }
                     lock.lock();
                     try {
@@ -63,14 +71,12 @@ public class HoraParque implements Runnable {
     }
 
     private void sumarHora() {
-        // Un metodo sincronizado que aumenta en 1 la hora
         hora++;
         synchronized (colectivo) {
-            colectivo.notifyAll(); // Notificar a los hilos que están esperando en el colectivo para que puedan
-                                   // verificar la hora y actuar en consecuencia
+            colectivo.notifyAll();
         }
         synchronized (tren) {
-            tren.notifyAll(); // Notificar al tren para que actualice su estado según la nueva hora
+            tren.notifyAll();
         }
         lock.lock();
         try {
@@ -82,10 +88,6 @@ public class HoraParque implements Runnable {
     }
 
     public static synchronized int getHora() {
-        // Un metodo sincronizado que puede consultar la hora actual del parque
         return hora;
     }
-    // Ambos metodos son sincronizados para que no se pueda consultar la hora
-    // mientras se cambie la hora
-
 }

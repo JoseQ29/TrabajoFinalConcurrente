@@ -10,6 +10,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import parqueecologico.Actividades.ActividadCarreraGomones.ActCarreraGomones;
 import parqueecologico.Actividades.ActividadCarreraGomones.EstacionBicicletas;
 import parqueecologico.Actividades.ActividadCarreraGomones.Maquinista;
 import parqueecologico.Actividades.ActividadCarreraGomones.Tren;
@@ -47,6 +48,8 @@ public class Parque {
     //Actividad Carreras de Gomones
     public static final boolean MSJ_TrenActividadCarreraGomones = true;
     public static final boolean MSJ_BicicletasActividadCarreraGomones = true;
+    public static final boolean MSJ_GomonesCGomones = true;   // Mensajes de gomones (largada, devolución)
+    public static final boolean MSJ_BolsosCGomones = true;    // Mensajes de bolsos con llave
     // -------------------------Debug-------------------------
     static Semaphore semCajeros = new Semaphore(2); // Semáforo para controlar el acceso a los cajeros del shoping
     static Semaphore semMolinetes = new Semaphore(MOLINETES); // Semáforo para controlar el acceso a los molinetes
@@ -65,8 +68,10 @@ public class Parque {
     // Faro Toboganes
     static ActFaroTobogan actFaroTobogan = new ActFaroTobogan(5);
     // Carreras de Gomones
-    static Tren tren = new Tren(); // crear el tren(monitor)
-    static EstacionBicicletas estacionBicicletas = new EstacionBicicletas(10); // crear la estacion de bicicletas(semaforo)
+    static Tren tren = new Tren(); // crear el tren (monitor)
+    static EstacionBicicletas estacionBicicletas = new EstacionBicicletas(10); // crear la estacion de bicicletas (semaforo)
+    // ActCarreraGomones: 30 bolsos, 15 gomones individuales, 10 gomones dobles, largada con 5 gomones
+    static ActCarreraGomones actCarreraGomones = new ActCarreraGomones(30, 15, 10, 5, estacionBicicletas, tren);
 
     public static void main(String[] args) {
 
@@ -83,7 +88,7 @@ public class Parque {
         Lock lock = new ReentrantLock();
         Condition siguienteHora = lock.newCondition();
         Thread horaParqueThread = new Thread(
-                new HoraParque(colectivo, tren, lock, siguienteHora, actMundoAventura, actSnorkel),
+                new HoraParque(colectivo, tren, lock, siguienteHora, actMundoAventura, actSnorkel, actCarreraGomones, actFaroTobogan),
                 "Hora Parque");
         horaParqueThread.start(); // Iniciar el hilo que simula el horario del parque
 
@@ -292,23 +297,11 @@ public class Parque {
     }
 
     private static void actividadCarrerasGomones() {
-        // simula la logica de la actividad de carreras de gomones
-        Random random = new Random();
-        if (random.nextBoolean()) { // La persona decide si va a tomar una bicicleta (true) o el tren (false)
-            try {
-                estacionBicicletas.tomarBicicleta();
-                Thread.sleep(500); // Simula el tiempo que tarda en viajar hacia la actividad
-                estacionBicicletas.devolverBicicleta();
-            } catch (InterruptedException e) {
-            }
-        }else{
-            try {
-                tren.subir();
-                tren.bajar();
-            } catch (InterruptedException e) {
-            }
+        // Delega toda la lógica a ActCarreraGomones (traslado + bolso + gomón + largada + río)
+        try {
+            actCarreraGomones.participar();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
-        Debuger.log(Parque.MSJ_PersonaActividades, Thread.currentThread().getName() + " llegó a la actividad de carreras de gomones.");
-        
     }
 }
