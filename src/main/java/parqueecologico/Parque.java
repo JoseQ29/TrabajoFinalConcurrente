@@ -10,6 +10,9 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import parqueecologico.Actividades.ActividadCarreraGomones.EstacionBicicletas;
+import parqueecologico.Actividades.ActividadCarreraGomones.Maquinista;
+import parqueecologico.Actividades.ActividadCarreraGomones.Tren;
 import parqueecologico.Actividades.ActividadFaroTobogan.ActFaroTobogan;
 import parqueecologico.Actividades.ActividadFaroTobogan.AdministradorTobogan;
 import parqueecologico.Actividades.ActividadMundoAventura.ActMundoAventura;
@@ -22,14 +25,10 @@ import parqueecologico.Actividades.ActividadSnorkel.Snorkel;
 import parqueecologico.Herramientas.Color;
 import parqueecologico.Herramientas.Debuger;
 
-/**
- *
- * @author Razor-PC V.3
- */
 public class Parque {
 
     static final int MOLINETES = 5;
-    // Debug
+    // -------------------------Debug-------------------------
     public static final boolean MSJ_AccesoParque = false;
     public static final boolean MSJ_AccesoMolinetes = false;
     public static final boolean MSJ_PersonaShop = false;
@@ -45,7 +44,10 @@ public class Parque {
     public static final boolean MSJ_PersonaActividadesMundoAventuraTirolesa = false;
     public static final boolean MSJ_PersonaActividadesFaroTobogan = true;
 
-    // Debug
+    //Actividad Carreras de Gomones
+    public static final boolean MSJ_TrenActividadCarreraGomones = true;
+    public static final boolean MSJ_BicicletasActividadCarreraGomones = true;
+    // -------------------------Debug-------------------------
     static Semaphore semCajeros = new Semaphore(2); // Semáforo para controlar el acceso a los cajeros del shoping
     static Semaphore semMolinetes = new Semaphore(MOLINETES); // Semáforo para controlar el acceso a los molinetes
     static boolean parqueCerrado = true; // Variable para indicar si el parque está cerrado o no
@@ -62,6 +64,9 @@ public class Parque {
     static ActMundoAventura actMundoAventura = new ActMundoAventura();
     // Faro Toboganes
     static ActFaroTobogan actFaroTobogan = new ActFaroTobogan(5);
+    // Carreras de Gomones
+    static Tren tren = new Tren(); // crear el tren(monitor)
+    static EstacionBicicletas estacionBicicletas = new EstacionBicicletas(10); // crear la estacion de bicicletas(semaforo)
 
     public static void main(String[] args) {
 
@@ -74,11 +79,11 @@ public class Parque {
         Random random = new Random();
 
         Colectivo colectivo = new Colectivo();// crear el colectivo(monitor)
-
+        
         Lock lock = new ReentrantLock();
         Condition siguienteHora = lock.newCondition();
         Thread horaParqueThread = new Thread(
-                new HoraParque(colectivo, lock, siguienteHora, actMundoAventura, actSnorkel),
+                new HoraParque(colectivo, tren, lock, siguienteHora, actMundoAventura, actSnorkel),
                 "Hora Parque");
         horaParqueThread.start(); // Iniciar el hilo que simula el horario del parque
 
@@ -101,8 +106,11 @@ public class Parque {
         Thread adminMundoAventuras = new Thread(new AdministradorTirolesa("Chirinos", actMundoAventura));
         adminMundoAventuras.start();
 
-        Thread conductorThread = new Thread(new Conductor(1, "Conductor 1 y 2", colectivo), "Conductor 1");
+        Thread conductorThread = new Thread(new Conductor(1, "Conductor", colectivo), "Conductor 1");
         conductorThread.start();// iniciar el hilo del conductor
+
+        Thread maquinistaThread = new Thread(new Maquinista(1, "Maquinista", tren), "Maquinista 1");
+        maquinistaThread.start();// iniciar el hilo del maquinista
 
         for (int i = 0; i < 250; i++) {// inicializar las personas que van al parque
             Thread personaThread = new Thread(new Persona(random.nextBoolean(), false, colectivo), "Persona " + i);
@@ -154,7 +162,7 @@ public class Parque {
     }
 
     public static void irActividades(int opcion, Persona visitante) {
-        // logica para simular que la persona va a las actividades del parque
+        // logica para simular la decisión de la actividad que la persona va a realizar en el parque
         switch (opcion) {
             case 0: // Nado con delfines
                 actividadNadoDelfines();
@@ -172,12 +180,7 @@ public class Parque {
                 actividadFaroTobogan();
                 break;
             case 5: // Carreras de Gomones
-                Debuger.log(MSJ_PersonaActividades, Color.violeta() + Thread.currentThread().getName()
-                        + " está en las actividades." + Color.reset());
-                try {
-                    Thread.sleep(10); // Simula el tiempo que tarda en disfrutar de las actividades
-                } catch (InterruptedException e) {
-                }
+                actividadCarrerasGomones();
                 break;
         }
     }
@@ -286,5 +289,26 @@ public class Parque {
             actMundoAventura.hacerTirolesa();
         }
 
+    }
+
+    private static void actividadCarrerasGomones() {
+        // simula la logica de la actividad de carreras de gomones
+        Random random = new Random();
+        if (random.nextBoolean()) { // La persona decide si va a tomar una bicicleta (true) o el tren (false)
+            try {
+                estacionBicicletas.tomarBicicleta();
+                Thread.sleep(500); // Simula el tiempo que tarda en viajar hacia la actividad
+                estacionBicicletas.devolverBicicleta();
+            } catch (InterruptedException e) {
+            }
+        }else{
+            try {
+                tren.subir();
+                tren.bajar();
+            } catch (InterruptedException e) {
+            }
+        }
+        Debuger.log(Parque.MSJ_PersonaActividades, Thread.currentThread().getName() + " llegó a la actividad de carreras de gomones.");
+        
     }
 }
