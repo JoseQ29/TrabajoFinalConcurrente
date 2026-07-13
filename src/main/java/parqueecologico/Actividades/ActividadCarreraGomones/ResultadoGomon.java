@@ -9,6 +9,10 @@ public class ResultadoGomon {
         this.esEncargadoLargada = esEncargadoLargada;
     }
 
-    public String getIdGomon() { return idGomon; }
-    public boolean esEncargadoLargada() { return esEncargadoLargada; }
+    public String getIdGomon() { 
+        return idGomon;
+    }
+    public boolean esEncargadoLargada() {
+        return esEncargadoLargada;
+    }
 }

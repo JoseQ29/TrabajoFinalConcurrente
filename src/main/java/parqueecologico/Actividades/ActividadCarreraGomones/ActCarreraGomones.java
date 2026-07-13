@@ -7,29 +7,6 @@ import parqueecologico.Herramientas.Color;
 import parqueecologico.Herramientas.Debuger;
 import parqueecologico.Parque;
 
-/**
- * Clase principal que coordina la actividad "Carrera de Gomones por el Río".
- *
- * Flujo de cada participante:
- *   1. Traslado al inicio (bicicleta o tren).
- *   2. tomarBolso()                → espera si no hay; devuelve -1 si el parque cerró.
- *   3. tomarOUnirseGomonDoble()    → toma asiento en un gomón doble existente o
- *      tomarGomonIndividual()        saca un gomón individual del pool.
- *                                    Devuelve null si el parque cerró.
- *   4. getLatchActual()            → captura el latch vigente antes de registrarse.
- *   5. registrarGomonListo()       → countDown del latch de la largada.
- *   6. esperarLargada()            → await hasta que el latch llegue a 0.
- *                                    notificarCierre() lo agota si el parque cierra.
- *   7. bajarRio()
- *   8. devolverGomon*()            (siempre, en finally)
- *   9. devolverBolso()             (siempre, en finally)
- *
- * Mecanismos:
- *   - ReentrantLock + Condition : pools de bolsos y de gomones.
- *   - CountDownLatch            : barrera de largada (se recrea tras cada una).
- *   - Semaphore                 : bicicletas (ya existente).
- *   - Monitor synchronized      : Tren (ya existente).
- */
 public class ActCarreraGomones {
 
     private final BolsoConLlave bolsoConLlave;
@@ -51,19 +28,12 @@ public class ActCarreraGomones {
         this.tren = tren;
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-
-    /**
-     * Punto de entrada de la actividad completa para una persona.
-     * En cada paso con espera, si el parque cerró el hilo sale limpiamente;
-     * los finally garantizan que siempre se devuelvan los recursos tomados.
-     */
     public void participar() throws InterruptedException {
-        // 1. Traslado
+        //traslado al inicio de la carrera
         trasladarse();
         if (Parque.estaCerrado()) return;
 
-        // 2. Bolso
+        // adquirir bolso
         int numeroBolso = bolsoConLlave.tomarBolso();
         if (numeroBolso == -1) {
             Debuger.log(Parque.MSJ_BolsosCGomones,
@@ -73,7 +43,7 @@ public class ActCarreraGomones {
         }
 
         try {
-            // 3. Gomón
+            // adquirir gomon (individual o doble)
             boolean usaGomonDoble = new Random().nextBoolean();
             String idGomon = null;
             boolean debeRegistrarLargada = true; // El individual siempre es responsable de sí mismo
@@ -96,12 +66,13 @@ public class ActCarreraGomones {
             }
 
             try {
-                // 4-6. Largada
+                // Largada de la carrera
                 CountDownLatch miLatch = gomones.getLatchActual();
                 
                 if (debeRegistrarLargada) {
                     gomones.registrarGomonListo(idGomon);
                 } else {
+                    //Pasajero 2 del gomon doble
                     Debuger.log(Parque.MSJ_GomonesCGomones,
                             Color.violeta() + Thread.currentThread().getName()
                             + " (" + idGomon + ") espera de forma compartida sin duplicar la largada." + Color.reset());
@@ -110,14 +81,13 @@ public class ActCarreraGomones {
                 gomones.esperarLargada(miLatch);
 
                 if (!Parque.estaCerrado()) {
-                    // 7. Descenso
+                    // Carrera
                     bajarRio();
                 }
 
             } finally {
-                // 8. Devolver gomón (CORREGIDO)
+                //Devolver gomón
                 if (usaGomonDoble) {
-                    // Le pasamos la bandera para saber si realmente debe restaurar el stock
                     gomones.devolverGomonDoble(idGomon, debeRegistrarLargada);
                 } else {
                     gomones.devolverGomonIndividual(idGomon);
@@ -125,22 +95,15 @@ public class ActCarreraGomones {
             }
 
         } finally {
-            // 9. Devolver bolso
+            // Devolver bolso
             bolsoConLlave.devolverBolso(numeroBolso);
         }
     }
 
-    /**
-     * Llamado por HoraParque al cierre del parque.
-     * Propaga la notificación a BolsoConLlave y Gomones para que todos
-     * los hilos bloqueados puedan salir sin espera activa.
-     */
     public void notificarCierre() {
         bolsoConLlave.notificarCierre();
         gomones.notificarCierre();
     }
-
-    // ─────────────────────────────────────────────────────────────────────────
 
     private void trasladarse() throws InterruptedException {
         if (new Random().nextBoolean()) {
