@@ -31,14 +31,13 @@ public class ActFaroTobogan {
         this.esperaVisitantes = lockAdmin.newCondition();
     }
 
-    // ─── Flujo del visitante ─────────────────────────────────────────────────
-
+    //Simula la acción del visitante en subir la escalera, la cual tiene una capacidad limitada.
     public void entrarEscalera() {
         try {
             if (!Parque.estaCerrado()) {
                 Debuger.log(Parque.MSJ_PersonaActividadesFaroTobogan, Color.violeta() + Thread.currentThread().getName()
                         + " intenta entrar a la escalera" + Color.reset());
-                escaleras.acquire();
+                escaleras.acquire(); //Intenta entrar a la escalera, si no hay espacio disponible, se bloquea hasta que haya espacio.
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -49,8 +48,8 @@ public class ActFaroTobogan {
         try {
             Debuger.log(Parque.MSJ_PersonaActividadesFaroTobogan,
                     Color.violeta() + Thread.currentThread().getName() + " está subiendo la escalera" + Color.reset());
-            Thread.sleep(200);
-            int toboganDesignado = esperaEnLaCola();
+            Thread.sleep(200); //El visitante sube la escalera.
+            int toboganDesignado = esperaEnLaCola(); //El visitante espera a que el admin le asigne un tobogán.
             if (toboganDesignado != -1) {
                 Debuger.log(Parque.MSJ_PersonaActividadesFaroTobogan,
                         Color.violeta() + Thread.currentThread().getName()
@@ -78,12 +77,8 @@ public class ActFaroTobogan {
             lockAdmin.unlock();
         }
     }
-
-    /**
-     * El visitante se encola y espera a que el admin le asigne un tobogán.
-     * Si el parque cierra mientras espera (su Condition es señalada por
-     * notificarCierre), sale limpiamente devolviendo -1 y liberando la escalera.
-     */
+    //El visitante entra en la cola de espera para tirarse de los toboganes, esperando a que el admin le asigne un tobogán.
+    //Devuelve -1 si ocurrió un problema (parque cerrado antes de asignarle un tobogán), o el índice del tobogán asignado (0 o 1) si todo salió bien.
     private int esperaEnLaCola() {
         lockAdmin.lock();
         int toboganATirar = -1;
@@ -96,9 +91,9 @@ public class ActFaroTobogan {
                 esperaVisitantes.signal(); // Avisa al admin que hay alguien esperando
                 miTurno.await();           // Espera su turno
 
-                // Al despertar: si el parque cerró, toboganATirarse no tendrá su entrada
+                // Al despertar: si el parque cerró, toboganATirarse no tendrá el tobogan por el cual se tiene que tirar.
                 Integer asignado = toboganATirarse.remove(miTurno);
-                if (asignado != null) {
+                if (asignado != null) { // Si el tobogan asignado es null, es porque el administrador no pudo asignarle un tobogán antes de que cerrara el parque
                     toboganATirar = asignado;
                 } else {
                     // Cerró antes de que lo asignaran: debe liberar la escalera
@@ -107,6 +102,7 @@ public class ActFaroTobogan {
                             + " despertó por cierre del parque, sale de la cola" + Color.reset());
                     escaleras.release();
                 }
+
             } else {
                 // Ya estaba cerrado al intentar entrar a la cola
                 Debuger.log(Parque.MSJ_PersonaActividadesFaroTobogan, Color.violeta() + Thread.currentThread().getName()
@@ -121,18 +117,12 @@ public class ActFaroTobogan {
         return toboganATirar;
     }
 
-    // ─── Flujo del administrador ─────────────────────────────────────────────
-
-    /**
-     * Atiende de a un visitante por llamada.
-     * Sale inmediatamente si el parque ya cerró y la cola está vacía.
-     * Las esperas internas también se desbloquean por notificarCierre().
-     */
+    //Es la función que el administrador de los toboganes llama para atender a los visitantes que están esperando en la cola.
     public void atenderVisitantes() {
         int toboganDisponible;
         lockAdmin.lock();
         try {
-            // Espera visitantes; sale si el parque cerró (señalado por notificarCierre)
+            // Espera visitantes o sale si el parque cerró (señalado por notificarCierre)
             while (colaTobogan.isEmpty() && !Parque.estaCerrado()) {
                 esperaVisitantes.await();
             }
@@ -141,7 +131,7 @@ public class ActFaroTobogan {
                 return;
             }
 
-            // Espera tobogán libre; sale si el parque cerró (señalado por notificarCierre)
+            // Espera algun tobogán libre o sale si el parque cerró (señalado por notificarCierre)
             while (tobogan[0].availablePermits() <= 0 && tobogan[1].availablePermits() <= 0
                     && !Parque.estaCerrado()) {
                 esperaTobogan.await();
@@ -149,15 +139,15 @@ public class ActFaroTobogan {
 
             if (Parque.estaCerrado() && tobogan[0].availablePermits() <= 0 && tobogan[1].availablePermits() <= 0) {
                 // No hay tobogán disponible y el parque cerró:
-                // descarta a todos los visitantes en cola señalándolos sin asignarles tobogán
+                // Entonces libera a todos los visitantes esperando por el tobogan
                 while (!colaTobogan.isEmpty()) {
                     Condition siguiente = colaTobogan.poll();
-                    siguiente.signal(); // El visitante despertará, no encontrará su entrada en toboganATirarse y saldrá
+                    siguiente.signal(); // El visitante se despierta sin tener asignado un tobogan (la forma para definir que el parque cerró) y se va.
                 }
                 return;
             }
 
-            // Hay tobogán disponible: asignarlo al siguiente en la cola
+            // Hay tobogán disponible y se asigna al siguiente en la cola
             if (tobogan[0].availablePermits() > 0) {
                 tobogan[0].acquire();
                 toboganDisponible = 0;
@@ -165,8 +155,8 @@ public class ActFaroTobogan {
                 tobogan[1].acquire();
                 toboganDisponible = 1;
             }
-            Condition siguiente = colaTobogan.poll();
-            toboganATirarse.put(siguiente, toboganDisponible);
+            Condition siguiente = colaTobogan.poll(); //Saca al siguiente visitante (el turno correspondiente) de la cola para asignarle un tobogán
+            toboganATirarse.put(siguiente, toboganDisponible); //Asocia el turno del visitante con el tobogán asignado
             siguiente.signal();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -175,21 +165,6 @@ public class ActFaroTobogan {
         }
     }
 
-    // ─── Cierre del parque ───────────────────────────────────────────────────
-
-    /**
-     * Llamado por HoraParque al cierre del parque.
-     *
-     * Desbloquea todos los puntos de espera dentro del lock compartido:
-     *  - esperaVisitantes: saca al admin del await si no hay visitantes.
-     *  - esperaTobogan:    saca al admin del await si no hay tobogán libre.
-     *  - colaTobogan:      señala a cada visitante que aún espera en la cola;
-     *                      como no se agrega entrada en toboganATirarse, cada uno
-     *                      detectará el cierre y liberará la escalera por su cuenta.
-     *
-     * No es necesario llamar a escaleras.release() aquí: cada visitante lo hace
-     * desde esperaEnLaCola() al detectar que su entrada no está en toboganATirarse.
-     */
     public void notificarCierre() {
         lockAdmin.lock();
         try {
@@ -197,26 +172,20 @@ public class ActFaroTobogan {
                     Color.amarillo() + "FaroTobogan: notificando cierre. Visitantes en cola: "
                             + colaTobogan.size() + Color.reset());
 
-            // Despertar al admin si está bloqueado en alguna de sus esperas
+            // Se despierta al admin si está bloqueado en alguna de sus esperas
             esperaVisitantes.signalAll();
             esperaTobogan.signalAll();
 
             // Despertar a cada visitante que está bloqueado en miTurno.await()
-            // SIN agregar entrada en toboganATirarse → el visitante saldrá limpiamente
             for (Condition turno : colaTobogan) {
                 turno.signal();
             }
-            // Nota: no vaciamos colaTobogan aquí; estaVacio() lo usará AdministradorTobogan
-            // para decidir cuándo terminar, y cada visitante se elimina de la cola implícitamente
-            // cuando el admin hace colaTobogan.poll() o queda vacía tras los signals.
-            // Para mayor seguridad, la vaciamos nosotros también:
+            // No se vacía el colaTobogan para que lo haga el AdministradorTobogan, y así decida cuándo terminar.
             colaTobogan.clear();
         } finally {
             lockAdmin.unlock();
         }
     }
-
-    // ─────────────────────────────────────────────────────────────────────────
 
     public boolean estaVacio() {
         lockAdmin.lock();
