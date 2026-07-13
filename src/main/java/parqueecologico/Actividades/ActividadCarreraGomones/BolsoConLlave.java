@@ -7,16 +7,7 @@ import parqueecologico.Herramientas.Color;
 import parqueecologico.Herramientas.Debuger;
 import parqueecologico.Parque;
 
-/**
- * Administra los bolsos con llave numerados para la Carrera de Gomones.
- *
- * Usa un ReentrantLock + Condition para bloquear a las personas que
- * esperan un bolso cuando no hay disponibles.
- *
- * Cuando el parque cierra, notificarCierre() hace signalAll() sobre la
- * condition, los hilos despiertan, evalúan el while(!parqueCerrado && ...)
- * y salen sin haber tomado bolso (devuelven -1).
- */
+
 public class BolsoConLlave {
 
     private int bolsosDisponibles;
@@ -30,13 +21,6 @@ public class BolsoConLlave {
         this.totalBolsos = cantidadBolsos;
     }
 
-    /**
-     * La persona toma un bolso con llave al inicio del recorrido.
-     * Bloquea si no hay bolsos disponibles.
-     * Cuando el parque cierra, despierta y devuelve -1.
-     *
-     * @return número de bolso asignado, o -1 si el parque cerró mientras esperaba.
-     */
     public int tomarBolso() throws InterruptedException {
         lock.lock();
         try {
@@ -47,7 +31,7 @@ public class BolsoConLlave {
                 return -1;
             }
             bolsosDisponibles--;
-            int numeroBolso = totalBolsos - bolsosDisponibles; // ID simbólico
+            int numeroBolso = totalBolsos - bolsosDisponibles; 
             Debuger.log(Parque.MSJ_BolsosCGomones,
                     Color.violeta() + Thread.currentThread().getName()
                     + " tomó un bolso. Bolsos disponibles: " + bolsosDisponibles + Color.reset());
@@ -57,9 +41,6 @@ public class BolsoConLlave {
         }
     }
 
-    /**
-     * Al final del recorrido la persona devuelve el bolso al pool.
-     */
     public void devolverBolso(int numeroBolso) {
         lock.lock();
         try {
@@ -74,11 +55,6 @@ public class BolsoConLlave {
         }
     }
 
-    /**
-     * Llamado por HoraParque al cierre del parque.
-     * Despierta a todos los hilos bloqueados en tomarBolso() para que
-     * evalúen Parque.estaCerrado() y salgan del while.
-     */
     public void notificarCierre() {
         lock.lock();
         try {

@@ -23,7 +23,7 @@ public class Conductor implements Runnable {
         while (!Parque.estaCerrado()) { // El conductor sigue trabajando mientras el parque no esté cerrado
             try {
                 colectivo.iniciarViaje();
-                Thread.sleep(500); // Simula un viaje de 5 segundos 
+                Thread.sleep(500); 
                 colectivo.terminarViaje();
             } catch (InterruptedException e) {
             }

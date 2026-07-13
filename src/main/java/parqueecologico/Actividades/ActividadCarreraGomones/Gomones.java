@@ -3,6 +3,7 @@ package parqueecologico.Actividades.ActividadCarreraGomones;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+
 import parqueecologico.Herramientas.Color;
 import parqueecologico.Herramientas.Debuger;
 import parqueecologico.Parque;
@@ -11,10 +12,10 @@ public class Gomones {
 
     private final int hGomonesParaLargada;
 
-    // Pools de gomones
+    // Cantidades de gomones
     private int stockIndividuales;
     private int stockDobles;
-    private int gomonesDoblesAMedias = 0; // 2) Control de gomones dobles con 1 solo pasajero
+    private int gomonesDoblesAMedias = 0; // Control de gomones dobles con 1 solo pasajero
 
     // Conditions para esperar gomón disponible
     private final ReentrantLock lockGomonesIndividuales = new ReentrantLock();
@@ -35,8 +36,6 @@ public class Gomones {
         this.latchLargada = new CountDownLatch(hGomonesParaLargada);
     }
 
-    // ─── Tomar gomones ───────────────────────────────────────────────────────
-
     public String tomarGomonIndividual() throws InterruptedException {
         lockGomonesIndividuales.lock();
         try {
@@ -47,7 +46,7 @@ public class Gomones {
                 return null;
             }
             stockIndividuales--;
-            String id = "GomónInd(stock=" + stockIndividuales + ")";
+            String id = "GomónInd(cantidad=" + stockIndividuales + ")";
             Debuger.log(Parque.MSJ_GomonesCGomones,
                     Color.violeta() + Thread.currentThread().getName()
                     + " tomó " + id + Color.reset());
@@ -57,10 +56,6 @@ public class Gomones {
         }
     }
 
-    /**
-     * 2) Nuevo método requerido por ActCarreraGomones
-     * Permite unirse a un gomón con un solo pasajero, o iniciar uno nuevo.
-     */
     public ResultadoGomon tomarOUnirseGomonDoble() throws InterruptedException {
         lockGomonesDobles.lock();
         try {
@@ -71,7 +66,7 @@ public class Gomones {
                 Debuger.log(Parque.MSJ_GomonesCGomones,
                         Color.violeta() + Thread.currentThread().getName()
                         + " se unió a un " + id + Color.reset());
-                // IMPORTANTE: Al ser el segundo, NO se encarga de registrar el gomon en la largada
+                // Al ser el segundo, no se encarga de registrar el gomon en la largada
                 return new ResultadoGomon(id, false);
             }
 
@@ -90,23 +85,16 @@ public class Gomones {
             // Toma uno nuevo completo del stock (ocupa 1 de 2 asientos)
             stockDobles--;
             gomonesDoblesAMedias++;
-            String id = "GomónDoble_Nuevo(stock=" + stockDobles + "_Asiento1)";
+            String id = "GomónDoble_Nuevo(cantidad=" + stockDobles + "_Asiento1)";
             Debuger.log(Parque.MSJ_GomonesCGomones,
                     Color.violeta() + Thread.currentThread().getName()
                     + " inició un nuevo " + id + Color.reset());
-            // IMPORTANTE: Al ser el primero en tomarlo, SÍ es el encargado de registrarlo en la largada
+            // Al ser el primero en tomarlo, si es el encargado de registrarlo en la largada
             return new ResultadoGomon(id, true);
         } finally {
             lockGomonesDobles.unlock();
         }
     }
-
-    // Mantener compatibilidad si se llama al método antiguo sin mutación
-    public ResultadoGomon tomarGomonDoble() throws InterruptedException {
-        return tomarOUnirseGomonDoble();
-    }
-
-    // ─── Devolver gomones ────────────────────────────────────────────────────
 
     public void devolverGomonIndividual(String idGomon) {
         lockGomonesIndividuales.lock();
@@ -122,13 +110,6 @@ public class Gomones {
         }
     }
 
-    /**
-     * 2) Lógica adaptada para las devoluciones de gomones compartidos/dobles
-     */
-    /**
-     * Devuelve el gomón doble al stock principal.
-     * Solo el pasajero responsable (el que inició el gomón) realiza la devolución física.
-     */
     public void devolverGomonDoble(String idGomon, boolean esResponsable) {
         // Si es el acompañante (Asiento2), no altera el stock físico del parque
         if (!esResponsable) {
@@ -138,7 +119,7 @@ public class Gomones {
             return;
         }
 
-        // Solo el conductor/creador devuelve el gomon al stock general
+        // Solo el creador devuelve el gomon al stock general
         lockGomonesDobles.lock();
         try {
             stockDobles++;
@@ -151,8 +132,6 @@ public class Gomones {
             lockGomonesDobles.unlock();
         }
     }
-
-    // ─── Largada ─────────────────────────────────────────────────────────────
 
     public CountDownLatch getLatchActual() {
         lockLargada.lock();
@@ -197,8 +176,6 @@ public class Gomones {
                         ? " sale de la espera por cierre del parque."
                         : " ¡A bajar el río!") + Color.reset());
     }
-
-    // ─── Cierre del parque ───────────────────────────────────────────────────
 
     public void notificarCierre() {
         lockGomonesIndividuales.lock();

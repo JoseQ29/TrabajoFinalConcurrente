@@ -16,7 +16,7 @@ public class Tren {
         // logica para iniciar el viaje del tren
         while ((HoraParque.getHora() == horaUltimoViajeRealizado) || (((pasajerosActuales != 0) && viajeTerminado) ||
                 (!Parque.estaCerrado() && pasajerosActuales == 0))) {
-            wait();
+                wait();
         }
         if (!Parque.estaCerrado()) {
             horaUltimoViajeRealizado = HoraParque.getHora();
