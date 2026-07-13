@@ -1,7 +1,7 @@
 package parqueecologico.Actividades.ActividadSnorkel;
 
-import parqueecologico.Parque;
 import parqueecologico.Herramientas.Debuger;
+import parqueecologico.Parque;
 
 public class AdministradorSnorkel implements Runnable {
     private String nombre;
@@ -15,7 +15,7 @@ public class AdministradorSnorkel implements Runnable {
     public void run(){
         Debuger.log(true, Thread.currentThread().getName() + " acaba de iniciar...");
          while (!actividad.actividadFinalizada) {             
-            actividad.atenderVisitante();
+            actividad.atenderVisitante(); // atiende a los visitantes hasta que cierra el parque
         } 
         Debuger.log(Parque.MSJ_Salidas, Thread.currentThread().getName() + " se fue del parque");
     }

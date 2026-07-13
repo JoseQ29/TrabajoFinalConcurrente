@@ -3,11 +3,12 @@ package parqueecologico;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
 import parqueecologico.Actividades.ActividadCarreraGomones.ActCarreraGomones;
 import parqueecologico.Actividades.ActividadCarreraGomones.Tren;
+import parqueecologico.Actividades.ActividadFaroTobogan.ActFaroTobogan;
 import parqueecologico.Actividades.ActividadMundoAventura.ActMundoAventura;
 import parqueecologico.Actividades.ActividadSnorkel.Snorkel;
-import parqueecologico.Actividades.ActividadFaroTobogan.ActFaroTobogan; // Importante
 import parqueecologico.Herramientas.Debuger;
 
 public class HoraParque implements Runnable {
@@ -21,12 +22,12 @@ public class HoraParque implements Runnable {
     private final ActMundoAventura mundoAventura;
     private final Snorkel snorkel;
     private final ActCarreraGomones actCarreraGomones;
-    private final ActFaroTobogan actFaroTobogan; // 1) Nueva referencia agregada
+    private final ActFaroTobogan actFaroTobogan;
 
-    // Constructor actualizado
     public HoraParque(Colectivo colectivo, Tren tren, Lock lock, Condition siguienteHora,
             ActMundoAventura mundoAventura, Snorkel snorkel, ActCarreraGomones actCarreraGomones,
             ActFaroTobogan actFaroTobogan) {
+                
         this.colectivo = colectivo;
         this.lock = lock;
         this.siguienteHora = siguienteHora;
@@ -34,7 +35,7 @@ public class HoraParque implements Runnable {
         this.snorkel = snorkel;
         this.tren = tren;
         this.actCarreraGomones = actCarreraGomones;
-        this.actFaroTobogan = actFaroTobogan; // Asignación
+        this.actFaroTobogan = actFaroTobogan; 
     }
 
     public void run() {
@@ -49,7 +50,7 @@ public class HoraParque implements Runnable {
                     snorkel.notificarCierre();
                     mundoAventura.notificarCierreTirolesa();
                     actCarreraGomones.notificarCierre(); 
-                    actFaroTobogan.notificarCierre(); // 1) Invocación de la notificación de cierre
+                    actFaroTobogan.notificarCierre(); 
                     
                     synchronized (colectivo) {
                         colectivo.notifyAll();

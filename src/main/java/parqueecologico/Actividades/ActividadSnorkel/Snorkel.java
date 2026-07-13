@@ -34,13 +34,15 @@ public class Snorkel {
     }
 
     public boolean pedirEquipo() {
+        //Los visitantes esperan a una admin para ser atendidos y luego esperan a que haya 
+        //un equipo disponible 
         mutex.lock();
         boolean tieneEquipo = false;
         try {
             if (!Parque.estaCerrado()) {
                 visitantesEsperando++;
                 while (adminsDisponibles <= 0) {
-                    visitanteEsperaAdmin.await();
+                    visitanteEsperaAdmin.await();//espera a que un admin lo atienda
                 }
                 if (!Parque.estaCerrado()) {
                     adminsDisponibles--;
@@ -49,7 +51,7 @@ public class Snorkel {
                             Color.violeta() + Thread.currentThread().getName() + " fué antendido y espera por su equipo"
                                     + Color.reset() + "visitantesEsperando/equipos: " + visitantesEsperando + "/"
                                     + equipoDisponible);
-                    visitanteEsperaEquipo.await();
+                    visitanteEsperaEquipo.await();//espera por un equipo disponible
                     tieneEquipo = true;
                 } else {
                     visitantesEsperando--;      //Saca de la cola a los visitantes que esperaban por la actividad.
@@ -63,9 +65,12 @@ public class Snorkel {
     }
 
     public void regresarEquipo() {
+        //Los visitantes devuelven el equipo que usaron en la actividad
         mutex.lock();
         try {
-            System.out.println(equipoDisponible + "/" + equiposTotal);
+            //System.out.println(equipoDisponible + "/" + equiposTotal);
+            //linea para debug 
+
             if (equipoDisponible < equiposTotal) {
                 equipoDisponible++;
                 Debuger.log(Parque.MSJ_PersonaActividadesSnorkel,
@@ -84,6 +89,7 @@ public class Snorkel {
     }
 
     public void atenderVisitante() {
+        //Acciones que realizan los administradores de la actividad para atender a los visitantes
         mutex.lock();
         try {
             while (!Parque.estaCerrado() && visitantesEsperando <= 0) {
@@ -112,12 +118,12 @@ public class Snorkel {
                 }
             } else {
                 visitanteEsperaAdmin.signalAll(); // Libera a todos los visitantes que esperan por ser atendidos
-                visitanteEsperaEquipo.signalAll();
+                visitanteEsperaEquipo.signalAll(); //LIbera a todos los visitantes que esperan por un equipo
                 while (equipoDisponible != equiposTotal) {
-                    adminEsperaEquipo.await();
+                    adminEsperaEquipo.await(); // No cierra la actividad hasta que todas las personas devuelvan sus equipos
                 }
                 while(visitantesEsperando != 0) {
-                    visitanteEsperaEquipo.signalAll();
+                    visitanteEsperaEquipo.signalAll(); // Libera a los visitantes que quedaron esperando su equipo
                 }
                 Debuger.log(Parque.MSJ_PersonaActividadesSnorkel,
                         Color.violeta() + "El parque ya cerró, vuelvan mañana");
@@ -130,6 +136,7 @@ public class Snorkel {
     }
 
     public void hacerSnorkel() {
+        //simula la actividad de snorkel con 1000ms
         if (!Parque.estaCerrado()) {
             Debuger.log(Parque.MSJ_PersonaActividadesSnorkel,
                     Color.violeta() + Thread.currentThread().getName() + " está haciendo snorkel " + Color.reset()
@@ -142,6 +149,7 @@ public class Snorkel {
     }
 
     public void notificarCierre() {
+        //Usado por hora parque para anunciar el cierre del parque
         mutex.lock();
         try {
             adminEsperaVisitantes.signalAll();

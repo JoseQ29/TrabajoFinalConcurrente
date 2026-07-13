@@ -1,6 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- */
 
 package parqueecologico;
 
@@ -39,6 +36,7 @@ public class Parque {
     public static final boolean MSJ_AccionColectivos = false;
     public static final boolean MSJ_Salidas = true;
     public static final boolean MSJ_PersonaSale = false;
+    public static final boolean MSJ_PersonaEntra = false;
     public static final boolean MSJ_PersonaActividadesNadoDelfines = false;
     public static final boolean MSJ_PersonaActividadesMundoAventuraCuerdas = false;
     public static final boolean MSJ_PersonaActividadesMundoAventuraSaltos = false;
@@ -93,7 +91,7 @@ public class Parque {
         horaParqueThread.start(); // Iniciar el hilo que simula el horario del parque
 
         Thread adminSnorkel1 = new Thread(new AdministradorSnorkel(actSnorkel, "administradorSnorkel 1"),
-                "administradorSnorkel 1"); // Se crean y se inician los administradores de la actividad de Snorkel
+                "administradorSnorkel 1"); 
         Thread adminSnorkel2 = new Thread(new AdministradorSnorkel(actSnorkel, "administradorSnorkel 2"),
                 "administradorSnorkel 2");
         adminSnorkel1.start();
@@ -106,16 +104,16 @@ public class Parque {
         Thread adminNadoDelfines = new Thread(
                 new AdministradorNadoDelfines(actNadoDelfines, "PEPE", lock, siguienteHora),
                 "Administrador Nado Delfines");
-        adminNadoDelfines.start(); // Iniciar el hilo que simula al administrador
+        adminNadoDelfines.start(); 
 
         Thread adminMundoAventuras = new Thread(new AdministradorTirolesa("Chirinos", actMundoAventura));
         adminMundoAventuras.start();
 
         Thread conductorThread = new Thread(new Conductor(1, "Conductor", colectivo), "Conductor 1");
-        conductorThread.start();// iniciar el hilo del conductor
+        conductorThread.start();
 
         Thread maquinistaThread = new Thread(new Maquinista(1, "Maquinista", tren), "Maquinista 1");
-        maquinistaThread.start();// iniciar el hilo del maquinista
+        maquinistaThread.start();
 
         for (int i = 0; i < 250; i++) {// inicializar las personas que van al parque
             Thread personaThread = new Thread(new Persona(random.nextBoolean(), false, colectivo), "Persona " + i);
@@ -125,14 +123,16 @@ public class Parque {
     }
 
     public synchronized static void personaSale() {
+        //metodo para hacer debug sobre la cantidad de personas en el parque
         personaEnParque--;
         Debuger.log(MSJ_PersonaSale,
                 Thread.currentThread().getName() + "se va del parque" + "PERSONAS EN EL PARQUE: " + personaEnParque);
     }
 
     public synchronized static void personaEntra() {
+        //metodo para hacer debug sobre la cantidad de personas en el parque
         personaEnParque++;
-        Debuger.log(MSJ_PersonaSale, "PERSONAS EN EL PARQUE: " + personaEnParque);
+        Debuger.log(MSJ_PersonaEntra, "PERSONAS EN EL PARQUE: " + personaEnParque);
     }
 
     public static boolean ingresarParque() {
@@ -172,7 +172,7 @@ public class Parque {
             case 0: // Nado con delfines
                 actividadNadoDelfines();
                 break;
-            case 1: // Disfruta de Snorkel
+            case 1: // Snorkel
                 actividadSnorkel();
                 break;
             case 2: // Restaurante
@@ -212,6 +212,7 @@ public class Parque {
         Random random = new Random();
         switch (random.nextInt(3)) { // El visitante elige en cuál restaurant entrar
             case 0:
+                //Burguer King
                 Debuger.log(MSJ_PersonaActividadesRestaurant, Color.violeta() + Thread.currentThread().getName()
                         + " ingresó a " + restaurant1.getName() + Color.reset());
                 restaurant1.entrarRestaurant();
@@ -219,6 +220,7 @@ public class Parque {
                 restaurant1.salirRestaurant();
                 break;
             case 1:
+                //Mostaza
                 Debuger.log(MSJ_PersonaActividadesRestaurant, Color.violeta() + Thread.currentThread().getName()
                         + " ingresó a " + restaurant2.getName() + Color.reset());
                 restaurant2.entrarRestaurant();
@@ -226,6 +228,7 @@ public class Parque {
                 restaurant2.salirRestaurant();
                 break;
             case 2:
+                //Mc Donalds
                 Debuger.log(MSJ_PersonaActividadesRestaurant, Color.violeta() + Thread.currentThread().getName()
                         + " ingresó a " + restaurant3.getName() + Color.reset());
                 restaurant3.entrarRestaurant();
